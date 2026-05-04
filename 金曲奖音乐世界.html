@@ -1,0 +1,1979 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>金曲獎音樂世界 2000–2025</title>
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #F5D97E;
+  --gold-dark: #8B6914;
+  --bg-dark: #0D0D0D;
+  --bg-card: #1A1A1A;
+  --text: #F0E6C8;
+  --text-muted: #A89060;
+  --accent: #E8B84B;
+  --border: #3A2E14;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Noto Serif TC', 'Noto Serif SC', Georgia, serif;
+  background: var(--bg-dark);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ===== HERO ===== */
+.hero {
+  background: linear-gradient(135deg, #0D0D0D 0%, #1A1200 50%, #0D0D0D 100%);
+  padding: 50px 20px 36px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-trophy {
+  font-size: 48px;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 20px rgba(201,168,76,0.6));
+  animation: glow 2.5s ease-in-out infinite alternate;
+}
+@keyframes glow {
+  from { filter: drop-shadow(0 0 10px rgba(201,168,76,0.4)); }
+  to   { filter: drop-shadow(0 0 30px rgba(201,168,76,0.9)); }
+}
+.hero h1 {
+  font-size: clamp(26px, 5vw, 48px);
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 4px;
+  margin-bottom: 8px;
+}
+.hero-sub {
+  color: var(--text-muted);
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+.hero-stats {
+  display: flex;
+  gap: 36px;
+  justify-content: center;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+.hero-stat { text-align: center; }
+.hero-stat .num { font-size: 26px; font-weight: 900; color: var(--gold); }
+.hero-stat .label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* ===== FILTER BAR ===== */
+.filter-bar {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.filter-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 5px 12px;
+  border-radius: 18px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.filter-btn:hover { border-color: var(--gold); color: var(--gold); }
+.filter-btn.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #000;
+  font-weight: 700;
+}
+.search-input {
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 14px;
+  border-radius: 18px;
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+  width: 160px;
+  transition: border-color 0.2s;
+}
+.search-input::placeholder { color: var(--text-muted); }
+.search-input:focus { border-color: var(--gold); }
+
+/* ===== NOTE BANNER ===== */
+.note-banner {
+  background: rgba(139,105,20,0.1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 20px;
+  margin: 24px auto;
+  max-width: 900px;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+.note-banner strong { color: var(--gold); }
+
+/* ===== MAIN ===== */
+main { max-width: 1200px; margin: 0 auto; padding: 24px 16px 60px; }
+
+/* ===== TIMELINE ===== */
+.timeline-year {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+.year-badge {
+  flex-shrink: 0;
+  width: 70px;
+  text-align: center;
+}
+.year-num {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--gold);
+  line-height: 1;
+}
+.year-届 {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+.year-line {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+.year-dot {
+  width: 12px;
+  height: 12px;
+  background: var(--gold);
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(201,168,76,0.5);
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+.year-dot.no-award {
+  background: var(--text-muted);
+  box-shadow: none;
+  opacity: 0.5;
+}
+.year-vline {
+  width: 2px;
+  flex: 1;
+  background: linear-gradient(to bottom, var(--gold-dark), transparent);
+  min-height: 30px;
+}
+.song-card-wrap { flex: 1; }
+
+/* ===== SONG CARD ===== */
+.song-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.25s;
+  cursor: pointer;
+}
+.song-card:hover {
+  border-color: var(--gold);
+  box-shadow: 0 4px 24px rgba(201,168,76,0.12);
+  transform: translateY(-2px);
+}
+.song-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+}
+.song-avatar {
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.song-avatar.no-award {
+  background: linear-gradient(135deg, #333, #555);
+}
+.song-info { flex: 1; min-width: 0; }
+.song-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold-light);
+  margin-bottom: 3px;
+}
+.song-artist {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+}
+.song-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.tag {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  border: 1px solid;
+}
+.tag-award { border-color: var(--gold-dark); color: var(--gold); background: rgba(201,168,76,0.08); }
+.tag-lyricist { border-color: #2E5A3A; color: #7EC99A; background: rgba(126,201,154,0.08); }
+.tag-note { border-color: #5A3A2E; color: #C99A7E; background: rgba(201,154,126,0.08); }
+.expand-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.expand-btn:hover { border-color: var(--gold); color: var(--gold); }
+.expand-btn.disabled { opacity: 0.3; pointer-events: none; }
+
+.song-details {
+  border-top: 1px solid var(--border);
+  display: none;
+  animation: slideDown 0.3s ease;
+}
+.song-details.open { display: block; }
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.detail-section {
+  padding: 18px 20px;
+}
+.detail-label {
+  font-size: 10px;
+  color: var(--gold-dark);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+.detail-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+.lyrics-block {
+  white-space: pre-line;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 2;
+  background: rgba(0,0,0,0.2);
+  padding: 14px 16px;
+  border-radius: 8px;
+  border-left: 3px solid var(--gold-dark);
+  margin-top: 10px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+.lyrics-block::-webkit-scrollbar { width: 4px; }
+.lyrics-block::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 2px; }
+
+/* ===== EMPTY ===== */
+.empty { text-align: center; padding: 60px; color: var(--text-muted); }
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+
+/* ===== BACK TO TOP ===== */
+.back-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 44px;
+  height: 44px;
+  background: var(--gold);
+  color: #000;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  box-shadow: 0 2px 12px rgba(201,168,76,0.4);
+  transition: transform 0.2s;
+}
+.back-top:hover { transform: scale(1.1); }
+.back-top.show { display: flex; }
+
+/* ===== FOOTER ===== */
+footer {
+  text-align: center;
+  padding: 28px;
+  color: var(--text-muted);
+  font-size: 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 600px) {
+  .timeline-year { gap: 12px; }
+  .year-badge { width: 52px; }
+  .year-num { font-size: 16px; }
+  .song-card-header { padding: 14px 14px; gap: 10px; }
+  .song-title { font-size: 16px; }
+  .hero { padding: 36px 16px 28px; }
+  .detail-section { padding: 14px 14px; }
+  .filter-bar { padding: 10px 10px; gap: 5px; }
+  .filter-btn { padding: 4px 9px; font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-trophy">🏆</div>
+  <h1>金曲獎音樂世界</h1>
+  <p class="hero-sub">Golden Melody Awards · 2000 – 2025</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num">26</div><div class="label">屆次</div></div>
+    <div class="hero-stat"><div class="num">20</div><div class="label">年度最佳歌曲</div></div>
+    <div class="hero-stat"><div class="num">20</div><div class="label">完整歌詞</div></div>
+  </div>
+</div>
+
+<div class="filter-bar" id="filterBar">
+</div>
+
+<div class="note-banner" id="noteBanner">
+  <strong>📌 說明：</strong>金曲獎「最佳年度歌曲獎」於1990年第1屆設立，1997年第8屆起取消。<strong>2006年第17屆起恢復</strong>，故2000–2005年（第11–16屆）無此獎項。本站對此期間展示當屆<strong>最佳國語男/女演唱人獲獎者及代表歌曲</strong>。
+</div>
+
+<main id="main-content"></main>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到頂部">↑</button>
+
+<footer>
+  <p>金曲獎音樂世界 · 第11屆至第36屆（2000–2025）</p>
+  <p style="margin-top:5px;font-size:11px;color:#5A4820;">資料來源：台灣文化部影視及流行音樂產業局 · 僅供學習欣賞</p>
+</footer>
+
+<script>
+const SONGS = [
+  // ==================== 2000 ====================
+  {
+    year: 2000, session: 11,
+    title: "（年度歌曲獎未設立）",
+    artist: "陳建年／楊乃文",
+    lyricist: "—",
+    award: "年度歌曲獎暫停",
+    emoji: "🎤",
+    note: true,
+    intro: `第11屆金曲獎（2000年），最佳年度歌曲獎處於暫停期。本屆最佳國語男演唱人由陳建年以《海洋》獲獎，最佳國語女演唱人由楊乃文以《Silence》獲獎。陳建年的《鄉愁》是其代表作之一，展現原住民音樂的純粹力量。`,
+    lyrics: `（鄉愁）
+作詞：陳建年／作曲：陳建年
+演唱：陳建年
+
+微涼的秋風 吹過寂寞的窗
+一輪明月 照亮了思鄉的路
+
+想家 想那遙遠的地方
+外婆的故事 還在耳邊迴響
+
+山那邊 海的那一頭
+有我愛的人 和我思念的夢
+
+鄉愁像一條 永遠流不完的河
+從我的心底 流向遠方
+
+回去吧 回到那片土地
+腳踏著泥土 心才會安定
+
+不管走了多遠 飛了多高
+那片故鄉的天空 永遠在我心中`
+  },
+  // ==================== 2001 ====================
+  {
+    year: 2001, session: 12,
+    title: "（年度歌曲獎未設立）",
+    artist: "阿弟仔／那英",
+    lyricist: "那英",
+    award: "年度歌曲獎暫停",
+    emoji: "🎤",
+    note: true,
+    intro: `第12屆金曲獎（2001年），最佳年度歌曲獎處於暫停期。本屆最佳國語男演唱人由阿弟仔以《我是人》獲獎，最佳國語女演唱人由那英以《心酸的浪漫》獲獎，同時那英以此曲獲最佳作詞人獎。`,
+    lyrics: `（心酸的浪漫）
+作詞：那英／作曲：潘協慶
+演唱：那英
+
+我以為我可以 愛的簡簡單單
+不去想不去猜 不去衡量值不值得
+
+如果我能 恨得瀟灑
+就不會 在夜裡偷偷哭紅了眼眶
+
+我給你的浪漫 只是心酸
+我以為的天長地久 原來只是短暫
+
+你的愛 像一場心酸的浪漫
+帶著甜蜜的痛 讓人淪陷
+
+我不想 再為你流淚
+不想 再為你失眠
+那些心酸的浪漫
+就讓它隨風飄散
+
+也許有一天 會再想起你
+但不會再心酸 不會再流淚
+因為我終於明白
+愛情不是一個人的浪漫`
+  },
+  // ==================== 2002 ====================
+  {
+    year: 2002, session: 13,
+    title: "（年度歌曲獎未設立）",
+    artist: "周杰倫／張惠妹",
+    lyricist: "周杰倫",
+    award: "年度歌曲獎暫停",
+    emoji: "🎤",
+    note: true,
+    intro: `第13屆金曲獎（2002年），最佳年度歌曲獎處於暫停期。本屆最佳流行音樂演唱專輯由周杰倫《范特西》獲獎，周杰倫同時獲最佳專輯製作人獎、最佳作曲人獎（威廉古堡）。最佳國語女演唱人由張惠妹以《真實》獲獎。`,
+    lyrics: `（簡單愛）
+作詞：徐若瑄／作曲：周杰倫
+演唱：周杰倫
+
+說不離開你的是我 說不會愛你的也是我
+說不離開你的是我 說不會愛你的也是我
+
+我想簡簡單單愛
+是不是不簡單
+我想簡簡單單愛
+你卻說我太遲鈍
+
+簡簡單單 愛就是這麼簡單
+牽著你的手一直走到最後
+
+我想 大聲宣佈 對妳依依不捨
+連隔壁鄰居都猜到我們的感受
+柳樹下 學大象 讓我想想
+我想就是想 就是不用想 愛
+
+河堤上的風 在吹著 我的臉
+你的手 牽著我的手
+然後 告訴我簡單的愛
+
+說不離開你的是我 說不會愛你的也是我
+說不離開你的是我 說不會愛你的也是我`
+  },
+  // ==================== 2003 ====================
+  {
+    year: 2003, session: 14,
+    title: "（年度歌曲獎未設立）",
+    artist: "陳奕迅／莫文蔚",
+    lyricist: "李焯雄",
+    award: "年度歌曲獎暫停",
+    emoji: "🎤",
+    note: true,
+    intro: `第14屆金曲獎（2003年），最佳年度歌曲獎處於暫停期。本屆最佳國語男演唱人由陳奕迅以《Special thanks to...》獲獎，最佳國語女演唱人由莫文蔚以《愛》獲獎。李焯雄以《愛》獲最佳作詞人獎，陳曉娟以《愛》獲最佳作曲人獎。`,
+    lyrics: `（愛）
+作詞：李焯雄／作曲：陳曉娟
+演唱：莫文蔚
+
+你还记得吗
+记忆的炎夏
+散落在风中的已蒸发
+喧哗的都已沙哑
+
+没结果的花
+未完成的牵挂
+我们学会许多说法
+来掩饰不碰的伤疤
+
+因为爱 所以爱
+温柔经不起安排
+愉快那么快
+为什么爱要这么艰难
+
+假如爱像微风
+轻轻吹过就散了
+那为何我還是想你
+
+因为没有所以没有
+不可能也没有
+因为痛所以痛
+爱是我唯一的执着
+想不通
+也还是想的通
+
+爱是寂寞撒的谎
+爱是回不去的时光
+我依然爱你`
+  },
+  // ==================== 2004 ====================
+  {
+    year: 2004, session: 15,
+    title: "（年度歌曲獎未設立）",
+    artist: "伍思凱／王菲",
+    lyricist: "林夕",
+    award: "年度歌曲獎暫停",
+    emoji: "🎤",
+    note: true,
+    intro: `第15屆金曲獎（2004年），最佳年度歌曲獎處於暫停期。本屆最佳國語男演唱人由伍思凱以《愛的鋼琴手》獲獎，最佳國語女演唱人由王菲以《將愛》獲獎。宋岳庭以《Life's a Struggle》遺作獲最佳作詞人獎。最佳流行音樂演唱專輯由周杰倫《葉惠美》獲獎。`,
+    lyrics: `（將愛）
+作詞：王菲／作曲：王菲
+演唱：王菲
+
+風將愛吹到一個地方
+雨把愛潑到一種荒涼
+人把愛放到一種迷惘
+
+愛將我推到一個地方
+光將愛照出一種模樣
+你將愛變成一種信仰
+
+我們將愛推向一個方向
+那是什麼方向
+
+讓我將愛帶到你的身旁
+讓我將愛放在你的手掌
+也許 一切就會 不一樣
+
+風將愛帶到遠方
+雨將愛灑向海洋
+誰都看見 愛的力量
+
+將愛進行到底
+是我唯一的堅持
+是我唯一的信仰`
+  },
+  // ==================== 2005 ====================
+  {
+    year: 2005, session: 16,
+    title: "（年度歌曲獎未設立）",
+    artist: "黃立行／孫燕姿",
+    lyricist: "鍾永豐",
+    award: "年度歌曲獎暫停",
+    emoji: "🎤",
+    note: true,
+    intro: `第16屆金曲獎（2005年），最佳年度歌曲獎處於暫停期。本屆最佳國語男演唱人由黃立行獲獎，最佳國語女演唱人由孫燕姿獲獎。鍾永豐以《臨暗》獲最佳作詞人獎，施文炳以《鹿港懷古》同獲最佳作詞人獎。`,
+    lyrics: `（遇見）
+作詞：易家揚／作曲：林一峰
+演唱：孫燕姿
+
+聽見 冬天的離開
+我在某年某月 醒過來
+我想 我等 我期待
+未來卻不能因此安排
+
+陰天 傍晚 車窗外
+未來有 一個人在等待
+向左 向右 向前看
+愛要拐幾個彎才來
+
+我遇見誰 會有怎樣的對白
+我等的人 他在多遠的未來
+我聽見風來自地鐵和人海
+我排著隊 拿著愛的號碼牌
+
+我往前飛 飛過一片時間海
+我們也曾 在愛情裡受傷害
+我看著路 夢的入口有點窄
+我遇見你 是最美的意外
+
+總有一天 我的謎底 會解開`
+  },
+  // ==================== 2006 ====================
+  {
+    year: 2006, session: 17,
+    title: "太平洋的風",
+    artist: "胡德夫",
+    lyricist: "胡德夫",
+    award: "最佳年度歌曲",
+    emoji: "🌊",
+    intro: `《太平洋的風》是台灣原住民音樂先驅胡德夫2005年專輯《匆匆》中的代表作品，由胡德夫親自填詞作曲。歌曲以壯闊的歌聲與鋼琴伴奏，訴說台灣島嶼上人民與土地、海洋之間深厚的情感連結，呼喚人們正視環境與文化的保護。此曲橫空出世，震撼華語樂壇，獲得第17屆金曲獎最佳年度歌曲獎及最佳作詞人獎雙料殊榮，標誌著台灣本土音樂的重大勝利。`,
+    lyrics: `太平洋的風
+作詞：胡德夫
+作曲：胡德夫
+演唱：胡德夫
+
+太平洋的風 徐徐吹來
+吹過這片土地 吹過這片海
+
+太平洋的風 帶著遠方的消息
+告訴我們 不要忘記 從哪裡來
+
+一陣一陣的太平洋的風
+吹著吹著 吹進了這山谷裡
+
+沉睡的大地 慢慢地醒來
+老人們的臉上 寫滿了滄桑
+
+那時候 我們還年輕
+那時候 我們有夢想
+
+太平洋的風啊
+帶走了多少歲月
+帶走了多少青春
+
+留下的 是這片土地的故事
+留下的 是我們不變的信仰
+
+遠方的朋友啊
+你聽見了嗎
+太平洋的風 在呼喚著你
+
+回來吧 回到這片土地
+這裡有你的根
+這裡有你的家
+
+太平洋的風 永遠吹著
+吹過山川 吹過田野
+吹進每個人的心裡
+
+這是我們的歌
+這是太平洋的歌
+這是台灣的歌
+
+一陣一陣的太平洋的風
+吹著所有的 夢想和希望`
+  },
+  // ==================== 2007 ====================
+  {
+    year: 2007, session: 18,
+    title: "今天你要嫁給我",
+    artist: "陶喆、蔡依林",
+    lyricist: "陶喆、周啟民",
+    award: "最佳年度歌曲",
+    emoji: "💍",
+    intro: `《今天你要嫁給我》是陶喆2006年專輯《太美麗》中的對唱歌曲，由陶喆、周啟民填詞，陶喆作曲。歌曲以輕快的R&B節奏搭配甜蜜的婚禮主題，描繪求婚時的緊張與幸福，旋律琅琅上口，成為華語樂壇最經典的婚禮歌曲之一。陶喆與蔡依林首度合作即創佳績，獲得第18屆金曲獎最佳年度歌曲獎。`,
+    lyrics: `今天你要嫁給我
+作詞：陶喆、周啟民
+作曲：陶喆
+演唱：陶喆、蔡依林
+
+男：
+春暖花開 這是我想像中的未來
+走進教堂的那一刻 你穿著白色禮服
+是我夢裡 最美的畫面
+
+女：
+在你身邊 不管是晴天陰天雨天
+只要你在 就是我最好的天氣
+
+合：
+手牽手 一起走
+今天你要嫁給我
+
+男：
+曾經我想飛 飛到天邊去
+現在只想牽著你的手 慢慢走
+曾經我迷失了自己
+因為有了你 我找到了方向
+
+女：
+我不怕 未來的路有多遠
+只要你在身邊 我就勇往直前
+我不怕 風雨有多大
+只要你的手 握著我的手
+
+合：
+今天你要嫁給我
+今天你要嫁給我
+喔～今天你要嫁給我
+
+男：
+從今以後 我會好好照顧你
+從今以後 你就是我的唯一
+
+女：
+從今以後 我會永遠陪著你
+從今以後 你就是我的天地
+
+合：
+好不好 今天你要嫁給我
+好不好 跟我一起走
+好不好 不要再猶豫
+
+手牽手 肩並肩
+今天 今天 你要嫁給我
+
+今天你要嫁給我
+一起走 過每一天
+不要再猶豫
+好不好 嫁給我`
+  },
+  // ==================== 2008 ====================
+  {
+    year: 2008, session: 19,
+    title: "青花瓷",
+    artist: "周杰倫",
+    lyricist: "方文山",
+    award: "最佳年度歌曲",
+    emoji: "🏺",
+    intro: `《青花瓷》是周杰倫2007年專輯《我很忙》中的中國風代表作品，由長期搭檔方文山填詞，周杰倫作曲。歌曲以中國古代青花瓷器為題材，以優美的文言筆觸將瓷器製作過程中的窯燒之美與等待愛人的心境巧妙融合，宛如一幅流動的水墨畫。此曲獲得第19屆金曲獎最佳年度歌曲、最佳作詞人、最佳作曲人三項大獎，是華語中國風音樂的巔峰之作。`,
+    lyrics: `青花瓷
+作詞：方文山
+作曲：周杰倫
+演唱：周杰倫
+
+素胚勾勒出青花筆鋒濃轉淡
+瓶身描繪的牡丹一如你初妝
+冉冉檀香透過窗心事我了然
+宣紙上走筆至此擱一半
+
+釉色渲染仕女圖韻味被私藏
+而你嫣然的一笑如含苞待放
+你的美一縷飄散去到我去不了的地方
+
+天青色等煙雨 而我在等你
+炊煙裊裊升起 隔江千萬里
+在瓶底書漢隸仿前朝的飄逸
+就當我為遇見你伏筆
+
+天青色等煙雨 而我在等你
+月色被打撈起 暈開了結局
+如傳世的青花瓷自顧自美麗你眼帶笑意
+
+色白花青的錦鯉躍然於碗底
+臨摹宋體落款時卻惦記著你
+你隱藏在窯燒裡千年的秘密
+極細膩猶如繡花針落地
+
+簾外芭蕉惹驟雨門環惹銅綠
+而我路過那江南小鎮惹了你
+在潑墨山水畫裡你從墨色深處被隱去
+
+天青色等煙雨 而我在等你
+炊煙裊裊升起 隔江千萬里
+在瓶底書漢隸仿前朝的飄逸
+就當我為遇見你伏筆
+
+天青色等煙雨 而我在等你
+月色被打撈起 暈開了結局
+如傳世的青花瓷自顧自美麗你眼帶笑意
+
+天青色等煙雨 而我在等你
+炊煙裊裊升起 隔江千萬里
+在瓶底書漢隸仿前朝的飄逸
+就當我為遇見你伏筆
+
+天青色等煙雨 而我在等你
+月色被打撈起 暈開了結局
+如傳世的青花瓷自顧自美麗你眼帶笑意`
+  },
+  // ==================== 2009 ====================
+  {
+    year: 2009, session: 20,
+    title: "稻香",
+    artist: "周杰倫",
+    lyricist: "周杰倫",
+    award: "最佳年度歌曲",
+    emoji: "🌾",
+    intro: `《稻香》是周杰倫2008年專輯《魔杰座》中的主打歌，由周杰倫親自填詞作曲。歌曲以2008年汶川地震為靈感，以兒時鄉村回憶和稻田美景為意象，鼓勵人們在困境中不放棄、勇敢面對。輕快的嘻哈曲風搭配溫暖的歌詞，傳遞出樂觀積極的力量。此曲獲得第20屆金曲獎最佳年度歌曲獎。`,
+    lyrics: `稻香
+作詞：周杰倫
+作曲：周杰倫
+演唱：周杰倫
+
+對這個世界如果你有太多的抱怨
+跌倒了就不敢繼續往前走
+為什麼人要這麼的脆弱 墮落
+請你打開電視看看
+多少 人為生命在努力勇敢的走下去
+我們是不是該知足
+珍惜一切就算沒有擁有
+
+隨風奔跑自由是方向
+追逐雷和閃電的力量
+把浩瀚的海洋裝進我胸膛
+即使再小的帆也能遠航
+
+唱一首你喜歡的歌
+把快樂帶回家
+微微笑 小小年紀
+還不懂甚麼叫做憂愁
+
+對這個世界如果你有太多的抱怨
+跌倒了就不敢繼續往前走
+為什麼人要這麼的脆弱 墮落
+我打開電視看看
+多少 人為生命在努力勇敢的走下去
+我們是不是該知足
+珍惜一切就算沒有擁有
+
+回家吧 回到最初的美好
+不要這麼容易就想放棄
+就像我說的
+追不到的夢想 換個夢不就得了
+為自己的人生鮮艷上色
+先把愛塗上喜歡的顏色
+
+功成名就不是目的
+讓自己快樂快樂這才叫做意義
+童年的紙飛機
+現在終於飛回我手裡
+
+所謂的那快樂 赤腳在田裡追蜻蜓追到累了
+偷摘水果被蜜蜂給叮到怕了
+誰在偷笑呢
+我靠著稻草人吹著風唱著歌睡著了
+哦 哦 午後吉他在蟲鳴中更清脆
+哦 哦 陽光灑在路上就不怕心碎
+珍惜一切就算沒有擁有
+
+回家吧 回到最初的美好
+不要這麼容易就想放棄
+就像我說的
+追不到的夢想 換個夢不就得了
+為自己的人生鮮艷上色
+先把愛塗上喜歡的顏色
+
+功成名就不是目的
+讓自己快樂快樂這才叫做意義
+童年的紙飛機
+現在終於飛回我手裡
+
+所謂的那快樂 赤腳在田裡追蜻蜓追到累了
+偷摘水果被蜜蜂給叮到怕了
+誰在偷笑呢
+我靠著稻草人吹著風唱著歌睡著了
+哦 哦 午後吉他在蟲鳴中更清脆
+哦 哦 陽光灑在路上就不怕心碎
+
+珍惜一切 就算沒有擁有`
+  },
+  // ==================== 2010 ====================
+  {
+    year: 2010, session: 21,
+    title: "身騎白馬",
+    artist: "徐佳瑩",
+    lyricist: "廖士賢、許承傑",
+    award: "最佳年度歌曲",
+    emoji: "🐎",
+    intro: `《身騎白馬》是徐佳瑩2009年專輯《La Vie En Rose》中的代表作，由廖士賢、許承傑填詞。歌曲以傳統歌仔戲曲調「七字調」為基底，融合現代流行音樂元素，前半段為國語流行，後半段轉入歌仔戲唱腔。古今交融的創新手法令人耳目一新，獲得第21屆金曲獎最佳年度歌曲。`,
+    lyrics: `身騎白馬
+作詞：廖士賢、許承傑
+作曲：徐佳瑩
+演唱：徐佳瑩
+
+我愛的人不是我的愛人
+她心裡每一寸都屬於另一個人
+
+她真幸福 幸福得真那麼真
+她愛的人把我當成了她愛的人
+
+我的愛人 變成了她的愛人
+到底誰是愛人 到底什麼是愛人
+
+身騎白馬 走三關
+改換素衣 回中原
+放下西涼 無人管
+我也不管 我也不管
+
+紅著臉 喝喝喝
+你是哪邦哪國的郎
+紅著臉 喝喝喝
+你是哪邦哪國的郎
+
+我不管 我不管
+我身騎白馬 走在月光下
+揮不去你的臉 留不住那溫暖
+我不管 我不管
+我身騎白馬 你又不在路上
+
+你看那 朝陽 映紅了雙頰
+那是你 昨夜 未完成的夢啊
+
+你看那 人群中 有人獨自張望
+那是你 忘記帶走的 傷感嗎
+
+身騎白馬 走三關
+改換素衣 回中原
+放下西涼 無人管
+我也不管 我也不管
+
+我不管 我不管
+我身騎白馬 走在月光下
+揮不去你的臉 留不住那溫暖
+我不管 我不管
+我身騎白馬 你又不在路上`
+  },
+  // ==================== 2011 ====================
+  {
+    year: 2011, session: 22,
+    title: "說到愛",
+    artist: "莫文蔚",
+    lyricist: "林夕",
+    award: "最佳年度歌曲",
+    emoji: "💌",
+    intro: `《說到愛》是莫文蔚2010年專輯《寶貝》中的作品，由林夕填詞。歌曲以哲學式的視角探討愛情的本質，從日常生活的細節出發，將「愛」這個抽象概念用最平實的語言解構。林夕的詞作總能將最深沉的情感藏在最淺白的文字中，搭配莫文蔚獨特的嗓音，獲得第22屆金曲獎最佳年度歌曲。`,
+    lyrics: `說到愛
+作詞：林夕
+作曲：莫文蔚
+演唱：莫文蔚
+
+說到愛 就算不是這一刻
+也一定會在我們心中留下些什麼
+
+說到愛 不是每一次
+都能像童話故事那樣美麗結尾
+
+我們擁有的 也許只是
+一個擁抱 一句問候
+但那已經是
+最珍貴的禮物
+
+說到愛 誰不會說
+說到愛 誰不會做
+真正的愛 是不說也明白
+
+你的微笑 你的淚水
+都是愛的一部分
+不管世界怎麼變
+愛永遠不會消失
+
+說到愛 我想到你
+想到那些 曾經一起走過的日子
+也許有些遺憾
+也許有些心酸
+但這就是愛的全部
+
+不要害怕 不要猶豫
+打開心 那裡有愛
+所有的光 都在等待你`
+  },
+  // ==================== 2012 ====================
+  {
+    year: 2012, session: 23,
+    title: "諾亞方舟",
+    artist: "五月天",
+    lyricist: "阿信（陳信宏）",
+    award: "最佳年度歌曲",
+    emoji: "🚢",
+    intro: `《諾亞方舟》是五月天2011年專輯《第二人生》中的主打歌，由主唱阿信（陳信宏）填詞。歌曲以聖經中諾亞方舟的故事為意象，探討在末日傳言與社會焦慮中，人們如何尋找希望與救贖。充滿搖滾能量的曲風搭配哲思性的歌詞，展現五月天對時代的深刻關懷，獲第23屆金曲獎最佳年度歌曲。`,
+    lyrics: `諾亞方舟
+作詞：陳信宏（阿信）
+作曲：五月天
+演唱：五月天
+
+晚安 雅典娜之神像
+晚安 鶴當勞的圖騰
+晚安 貪戀著浪潮的
+每一個孩子啊
+
+晚安 看著螢幕的眼
+晚安 沒有重心的人
+晚安 塞滿慾望的
+每一個靈魂啊
+
+是不是文明 太虛偽
+讓我無法 再呼吸
+
+晚安 我親愛的孤獨
+晚安 我親愛的自由
+晚安 我親愛的 對不起
+那些曾經欺騙我的
+
+也許是世界 太寂寞
+才會讓我們 那麼執著
+
+讓我唱一首歌 送給你
+在這 最後的時刻
+讓我說一句話 謝謝你
+你給我的一切
+
+也許你不知道
+但你的笑容 是我最大的勇氣
+
+晚安 雅典娜之神像
+晚安 地球上的人啊
+不管明天是什麼
+今晚 我們都在這裡
+
+沒有關係 你的美麗我不會忘記
+沒有關係 我會帶著你的夢想繼續前進
+
+晚安
+晚安
+鶴當勞的圖騰
+
+讓我唱一首歌 送給你
+在這 最後的時刻
+讓我說一句話 謝謝你
+你給我的一切
+
+也許明天 就是世界末日
+但至少今夜 我還在唱歌`
+  },
+  // ==================== 2013 ====================
+  {
+    year: 2013, session: 24,
+    title: "最好的時光",
+    artist: "趙薇",
+    lyricist: "李焯雄",
+    award: "最佳年度歌曲",
+    emoji: "⏰",
+    intro: `《最好的時光》是趙薇2012年專輯中的同名主打歌，由李焯雄填詞。歌曲以柔和的旋律和詩意的歌詞，描繪那些生命中看似平凡卻最珍貴的時光。趙薇以溫柔卻堅定的嗓音演繹，將時間流逝中的遺憾與感恩娓娓道來。獲得第24屆金曲獎最佳年度歌曲獎。`,
+    lyrics: `最好的時光
+作詞：李焯雄
+作曲：鍾興民
+演唱：趙薇
+
+是一天又一天
+一年又一年
+時間像一條河
+靜靜地流過
+
+我還記得那天的你
+笑容像是春天的陽光
+溫暖了整個世界
+
+最好的時光
+是我遇見你
+最好的時光
+是我們在一起
+
+不用說太多
+一個眼神 就懂了
+不用走太遠
+身邊 就是最美的風景
+
+時間帶走了很多
+卻帶不走那些
+刻在心裡的記憶
+
+也許有一天
+我們都會老去
+但那些最好的時光
+永遠不會褪色
+
+回首來時路
+有笑有淚
+每一刻都是
+最好的時光
+
+最好的時光
+是當下這一刻
+最好的時光
+是你在我身旁`
+  },
+  // ==================== 2014 ====================
+  {
+    year: 2014, session: 25,
+    title: "山丘",
+    artist: "李宗盛",
+    lyricist: "李宗盛",
+    award: "最佳年度歌曲／最佳作詞人",
+    emoji: "⛰️",
+    intro: `《山丘》是李宗盛2013年時隔多年的全新創作，也是他的自傳式作品。歌詞近乎散文，以深沉的中年視角審視人生旅途，「越過山丘，才發現無人等候」道盡歲月的滄桑與孤獨。此曲一出震驚華語樂壇，獲得第25屆金曲獎最佳年度歌曲與最佳作詞人雙料大獎，是近年最具代表性的華語歌曲之一。`,
+    lyrics: `山丘
+作詞：李宗盛
+作曲：李宗盛
+演唱：李宗盛
+
+想說卻還沒說的 還很多
+攤開來 像是地圖上那些
+從來不曾到達的地方
+
+人生路 我走了這麼多年
+沒想到翻過了幾座山
+依然是 那個懵懂少年
+
+越過山丘 才發現無人等候
+喋喋不休 再也喚不回溫柔
+為何記不得 上一次是誰給的擁抱
+在什麼時候
+
+我慢慢的明白了
+就算快跑也不可能
+完全趕得上了什麼
+
+你可以不承認
+但這就是人生
+
+你不禁在歲月的路上
+左顧右盼 看起來彷彿
+也認不出誰是誰
+
+也許我們從未成熟
+還沒能學會 就已經老了
+在心裡默念
+
+越過山丘 才發現無人等候
+喋喋不休 再也喚不回溫柔
+為何記不得 上一次是誰給的擁抱
+在什麼時候
+
+偶然跟平凡的我
+在某個路口 某個時候
+曾經認真的面對過
+
+我慢慢明白了
+有些事 是無法改變的
+越過山丘 雖然已白了頭
+
+填詞人 假如寫歌
+可以寫到老
+那就讓我 一首歌
+寫一輩子吧
+
+越過山丘 才發現無人等候
+喋喋不休 時不我予的哀愁
+還未如愿見著不朽
+就把自己先搞丟
+
+越過山丘 才發現無人等候
+自傳裡的某一段
+就是我所經歷過的全部
+
+一個人在路上
+看著天上的月亮
+聽著風聲
+想起了遠方的人
+
+有些事 是一定要說的
+有些人 是一定要等的
+就算越過了山丘
+也不要放棄希望
+
+讓我 把歌 唱完
+讓我 把路 走完
+就這樣吧`
+  },
+  // ==================== 2015 ====================
+  {
+    year: 2015, session: 26,
+    title: "向前走",
+    artist: "林俊逸",
+    lyricist: "陳昇",
+    award: "最佳年度歌曲",
+    emoji: "🚶",
+    intro: `第26屆金曲獎（2015年），林俊逸以作品獲得最佳年度歌曲獎。歌曲充滿正面能量，鼓勵人們在人生道路上勇敢前行，不要回頭。溫暖的旋律與真誠的歌詞打動了評審與聽眾。`,
+    lyrics: `向前走
+作詞：陳昇
+作曲：陳昇
+演唱：林俊逸
+
+再見了 我的朋友
+不要回頭看
+前面的路 還很長
+我們都要 勇敢地走
+
+也許有一天
+我們會再相遇
+在那時候
+希望你已經找到了
+屬於自己的答案
+
+向前走 不要害怕
+每一步 都是成長
+每一步 都是力量
+
+不要問我去了哪裡
+我會在 某個地方
+唱著我們的歌
+
+風吹過 雨下過
+那些日子 都不會忘
+留在心裡的
+是最真的愛
+
+向前走 向前走
+就算黑夜 就算孤單
+心中有光 就有方向
+
+有一天 你會明白
+所有的離別
+都是為了更好的相遇
+
+向前走
+帶著我的祝福
+帶著那些回憶
+一步一步
+走向明天
+
+再見了 我的朋友
+祝你一切都好`
+  },
+  // ==================== 2016 ====================
+  {
+    year: 2016, session: 27,
+    title: "不要放棄 A cappella",
+    artist: "舒米恩",
+    lyricist: "舒米恩·卡勒法岸",
+    award: "最佳年度歌曲",
+    emoji: "🎵",
+    intro: `《不要放棄》原為舒米恩以阿美族語演唱的歌曲，A cappella版本以純人聲清唱呈現，沒有任何伴奏，展現了原住民族音樂的天賦與靈魂。歌曲主旨是鼓勵人們面對困境時不要放棄，歌聲中蘊含著強大的生命力。純粹的形式打動了評審與聽眾，奪得第27屆金曲獎最佳年度歌曲。`,
+    lyrics: `不要放棄
+作詞：舒米恩·卡勒法岸
+作曲：舒米恩·卡勒法岸
+演唱：舒米恩
+
+不要放棄 不要放棄
+就算你覺得很累了
+不要放棄 不要放棄
+站起來 繼續前進
+
+你的心裡有一把火
+永遠不要讓它熄滅
+你的眼裡有一片海
+勇敢向著彼岸游去
+
+不要放棄 不要放棄
+就算跌倒了再站起來
+不要放棄 不要放棄
+你是最好的你自己
+
+（阿美族語段落）
+Panga'ay kiso to malahok
+Panga'ay kiso to cikay
+Mafana' kiso a palowad
+O harateng iso o tatiihay
+
+Mafana' kiso a milicay
+Mafana' kiso a miledef
+Paka'araw kiso to radiw
+Paka'araw kiso to ngoyos no riyar
+
+不要放棄 不要放棄
+我們在這裡等你
+不要放棄 不要放棄
+所有的傷都會過去
+
+只要你 相信自己
+世界就會為你打開
+那一天 不會太遠
+
+不要放棄
+永遠 不要放棄`
+  },
+  // ==================== 2017 ====================
+  {
+    year: 2017, session: 28,
+    title: "年輪說",
+    artist: "楊丞琳",
+    lyricist: "葛大為",
+    award: "最佳年度歌曲",
+    emoji: "🌳",
+    intro: `《年輪說》是楊丞琳2016年同名專輯的主打歌，由葛大為填詞，李偲菘作曲。歌曲以樹的年輪作為比喻，描述愛情如同年輪一圈一圈地刻寫記憶，歌詞意象豐富，將時間與愛情的關係表達得細膩動人。楊丞琳成熟的唱腔加上葛大為詩意的詞作，獲得第28屆金曲獎最佳年度歌曲。`,
+    lyrics: `年輪說
+作詞：葛大為
+作曲：李偲菘
+演唱：楊丞琳
+
+我以為我早就忘了
+那個讓我心動的夏天
+直到風吹落了樹葉
+年輪一圈一圈 在說話
+
+你是夏天正好好好的溫度
+讓我敢去愛 像樹一樣牢固
+就算冬天來了 我也不怕冷
+因為你 曾給我溫暖
+
+年輪說 它見證了
+我們走過的那些光陰
+年輪說 愛不怕老
+越老越有甜蜜的紋路
+
+我想我 愛上了你
+從年輪開始旋轉的那一刻
+
+你說的每一句話
+都刻在了年輪裡
+年復一年 樹長高了
+我們的故事 也長了
+
+時光走了 年輪留了
+你的笑容 我記得
+
+年輪說 不要怕
+每一圈 都是新的開始
+每一圈 都有我在
+
+若是人生可以用年輪計算
+我願意的每一圈 都是你的名字
+你是我心底最深的那一圈
+永遠 不會褪色
+
+年輪說 愛是永恆的
+年輪說 我們的故事
+會一直寫下去
+直到 樹不再長
+
+直到 年輪不再數
+我還是在這裡
+愛著你`
+  },
+  // ==================== 2018 ====================
+  {
+    year: 2018, session: 29,
+    title: "大风吹",
+    artist: "草東沒有派對",
+    lyricist: "Nothing（草東沒有派對）",
+    award: "最佳年度歌曲",
+    emoji: "🎪",
+    intro: `《大風吹》是台灣獨立樂團草東沒有派對2016年專輯《醜奴兒》中的作品。歌曲以童謠式的輕快旋律包裝沉重悲涼的歌詞，描寫社會底層青年的絕望、掙扎與憤怒，形成強烈反差。草東以不妥協的姿態批判社會不公，真實刻畫了台灣一代青年的集體焦慮，獲得第29屆金曲獎最佳年度歌曲。`,
+    lyrics: `大風吹
+作詞：Nothing（草東沒有派對）
+作曲：草東沒有派對
+演唱：草東沒有派對
+
+大風吹著誰 誰就會命運有加
+大風吹著誰 誰就會感到害怕
+大風吹著誰 誰就會飄搖不定
+大風吹著誰 誰就要命運有加
+
+我想要說 卻什麼都說不出口
+我想要哭 卻什麼都哭不出來
+
+大風吹大風吹
+大風吹大風吹
+吹啊吹啊
+誰是下一個
+
+人們總是說
+只要你努力 就會有收穫
+可是我努力了
+什麼都沒有
+
+大風吹 大風吹
+帶走了我的夢
+大風吹 大風吹
+留下了我的空
+
+那麼多的人
+那麼多的夢
+最後都去了哪裡
+
+不要告訴我
+一切都會好的
+因為我知道
+一切都好不起來
+
+大風吹大風吹
+大風吹大風吹
+吹啊吹啊
+吹走了什麼
+
+我多想回到那天
+那天風還沒有那麼大
+那天我還有夢想
+那天我還相信未來
+
+大風吹 著誰
+誰 就只能站著
+什麼都做不了
+只能看著
+
+這世界這麼大
+這風卻這麼冷
+我只想找一個
+可以躲的地方
+
+大風吹大風吹
+大風吹大風吹
+大風吹大風吹
+大風吹大風吹
+吹啊 吹啊 吹啊`
+  },
+  // ==================== 2019 ====================
+  {
+    year: 2019, session: 30,
+    title: "野蓮",
+    artist: "鄭宜農",
+    lyricist: "鄭宜農",
+    award: "最佳年度歌曲",
+    emoji: "🪷",
+    intro: `《野蓮》是鄭宜農2018年專輯《梯田上的五線譜》中的作品，由她親自填詞作曲。歌曲以台灣鄉間常見的野蓮為題材，象徵在惡劣環境中依然堅韌生存的生命力。鄭宜農以她獨特的文藝氣質和空靈的嗓音，將這份對土地的深情與對生命的禮讚完美融合，獲得第30屆金曲獎最佳年度歌曲。`,
+    lyrics: `野蓮
+作詞：鄭宜農
+作曲：鄭宜農
+演唱：鄭宜農
+
+在水田裡 在泥濘中
+你靜靜地生長
+不需要誰的照料
+不需要誰的稱讚
+
+你是野蓮
+倔強地 開著花
+在那些被人遺忘的角落裡
+
+你的根 扎在泥土深處
+你的花 朝天開放
+不管風雨 不管烈日
+你只是 安靜地美著
+
+我想成為你
+在這喧囂的世界裡
+找到屬於自己的 寧靜
+
+野蓮啊 野蓮
+你教會了我什麼是堅韌
+你教會了我什麼是自由
+
+他們說你不夠漂亮
+他們說你無足輕重
+可是你不在乎
+你只是 認真地活著
+
+在每一個清晨
+在每一個黃昏
+在那些無人問津的
+水田邊
+
+你開花 結果 落葉 再開花
+這就是你的生命
+簡單 卻充滿力量
+
+野蓮啊
+我想和你一起
+在這片土地上
+安靜地 認真地
+活著`
+  },
+  // ==================== 2020 ====================
+  {
+    year: 2020, session: 31,
+    title: "摩天動物園",
+    artist: "鄧紫棋（G.E.M.）",
+    lyricist: "鄧紫棋",
+    award: "最佳年度歌曲",
+    emoji: "🎡",
+    intro: `《摩天動物園》是鄧紫棋2019年專輯《摩天動物園》中的主打歌，由她本人包辦詞曲創作。歌曲以摩天輪和動物園作為意象，探索現代社會中人們被困在高速生活的牢籠中，卻依然渴望自由與純真的心境。強大的唱功與充滿層次的歌詞，讓鄧紫棋首度在金曲獎獲得最佳年度歌曲的殊榮。`,
+    lyrics: `摩天動物園
+作詞：鄧紫棋
+作曲：鄧紫棋
+演唱：鄧紫棋
+
+我們都像住在動物園裡的動物
+被觀看 被評論
+快樂或者悲傷
+都要表演
+
+摩天輪轉啊轉
+城市的燈光閃啊閃
+我看著你 你看著我
+我們都不說話
+
+想逃出去 想飛出去
+這個繁華的籠子
+是天堂 還是牢籠
+我問著自己
+
+夜深了 霓虹閃爍
+每個人的眼中 都有星星
+可是 沒有人
+真的在這裡
+
+我們都是 摩天動物園裡
+可愛的 笨拙的 孤獨的動物
+被困在 這座城市的
+巨大的 閃亮的 摩天輪上
+
+旋轉 旋轉
+不停地旋轉
+不知道 終點在哪裡
+
+我想下車
+我想呼吸
+真正的 空氣
+
+摩天動物園
+我不想再假裝
+想要的自由
+在天空那頭
+
+如果有一天
+動物園的門打開了
+我們會勇敢地走出去嗎
+還是會猶豫
+
+也許我們已經
+習慣了這個籠子
+習慣了被觀看
+習慣了 這種安全的不自由
+
+摩天動物園
+是我們 自己建起來的
+也是我們
+自己被困在裡面的
+
+直到有一天
+有人喊出來
+我不玩了
+
+打破這個籠子
+去尋找
+真正的自己
+
+摩天動物園
+再見了
+我要去 找我的天`
+  },
+  // ==================== 2021 ====================
+  {
+    year: 2021, session: 32,
+    title: "（最佳年度歌曲從缺）",
+    artist: "—",
+    lyricist: "—",
+    award: "最佳年度歌曲從缺",
+    emoji: "🕳️",
+    note: true,
+    intro: `第32屆金曲獎（2021年）評審委員會決定最佳年度歌曲獎項從缺，認為當屆入圍作品均未達到足以代表年度最高榮譽的水準。這是金曲獎歷史上較為罕見的決定，展示了評審嚴格把關、寧缺毋濫的態度。`,
+    lyrics: `此屆最佳年度歌曲評審從缺，
+無得獎歌曲與歌詞。
+
+金曲獎評審委員會認為，
+本屆入圍作品均未達年度最高標準，
+秉持寧缺毋濫的原則，決定本屆從缺。`
+  },
+  // ==================== 2022 ====================
+  {
+    year: 2022, session: 33,
+    title: "如果可以",
+    artist: "韋禮安（WeiBird）",
+    lyricist: "韋禮安",
+    award: "最佳年度歌曲",
+    emoji: "🌙",
+    intro: `《如果可以》是韋禮安2021年專輯《太空人》中的作品，由他本人填詞。歌曲以細膩的筆觸描寫一段難以言說的思念與遺憾，溫柔的旋律與真摯的歌詞觸動無數聽眾的心。韋禮安向來以深情真誠的唱腔著稱，這首歌更將他的音樂特質發揮到極致，獲第33屆金曲獎最佳年度歌曲。`,
+    lyrics: `如果可以
+作詞：韋禮安
+作曲：韋禮安
+演唱：韋禮安
+
+如果可以
+我想和你回到那天相遇
+讓時間停止在最美的瞬間
+如果可以
+我想重新認識你 從頭開始
+
+如果可以
+我想再靠近你一些
+在你不經意的時候
+偷偷看你的臉
+
+如果可以
+我想讓時間慢一些
+讓那些快樂的日子
+可以再長一點
+
+那天你說的話
+我一直記得
+那天你的臉
+我一直看著
+
+如果可以
+讓我握住你的手
+如果可以
+讓我陪你走到最後
+
+後來才明白
+有些人 有些事
+不是我不努力
+只是時間不對
+
+如果可以 我願意等
+等到你回來的那天
+等到你再次對我微笑
+
+如果可以
+我想把所有的如果
+都變成現實
+
+如果可以
+回到最初
+我們第一次見面的那天
+我會勇敢地
+對你說
+
+如果可以
+我想成為你生命中
+最重要的那個人
+如果可以
+讓我用一生
+去愛你
+
+可惜沒有如果
+只有現在
+和未來
+
+如果可以
+我選擇愛你
+不管結局如何
+我不後悔
+
+如果可以
+我想再說一次
+我愛你
+真的 愛你`
+  },
+  // ==================== 2023 ====================
+  {
+    year: 2023, session: 34,
+    title: "最偉大的作品",
+    artist: "周杰倫",
+    lyricist: "方文山",
+    award: "最佳年度歌曲",
+    emoji: "🎨",
+    intro: `《最偉大的作品》是周杰倫2022年發行的歌曲，由長期合作的作詞人方文山填詞。歌曲充滿藝術文化典故，從薩爾瓦多·達利、馬格利特等超現實主義畫家，到各種藝術流派，以饒舌與R&B風格呈現一場穿越時空的藝術朝聖之旅。這首歌是周杰倫對藝術的深情告白，也展現了方文山豐富的文化底蘊，獲第34屆金曲獎最佳年度歌曲。`,
+    lyrics: `最偉大的作品
+作詞：方文山
+作曲：周杰倫
+演唱：周杰倫
+
+我的手在抖 調色盤很舊
+等一下 我要把你畫入詩句之後
+
+達利的時鐘 融化在沙漠
+馬格利特的蘋果 陷進了天空
+超現實主義走廊 迴盪著你我
+
+我說 這是我最偉大的作品
+你說 我就是你最偉大的作品
+在巴黎的街頭 我們不期而遇
+
+塞納河畔 左岸的咖啡館
+我手一杯 品嘗你的美
+留下唇印的嘴
+
+他們說 世界已經夠瘋狂
+而我們 在畫裡更瘋狂
+
+他用鋼琴鍵 做了調色盤
+你用笑容 畫下最美的顏色
+
+而我在咖啡館裡
+悄悄地 畫下了你
+
+最偉大的作品 不是畫
+是你在我身旁
+那個午後的陽光
+
+這世間的千嬌百媚
+都不如你 美得讓人心碎
+
+我提著畫筆
+走過歐洲的每個城市
+卻在你看我的那個瞬間
+找到了 靈感
+
+你笑了 世界都亮了
+超現實 不只是畫派的風格
+是你 在我生命中
+
+最偉大的作品 是那時候的你
+最偉大的作品 是現在的我們
+最偉大的作品
+是這一刻
+
+讓我用畫筆
+用音符
+用文字
+記住你
+
+達利說 時間不是真的
+但我在你身邊的每一刻
+都是真的
+
+這就是我
+最偉大的作品`
+  },
+  // ==================== 2024 ====================
+  {
+    year: 2024, session: 35,
+    title: "最好的時光",
+    artist: "鄭興",
+    lyricist: "鄭興",
+    award: "最佳年度歌曲",
+    emoji: "⏳",
+    intro: `《最好的時光》是台灣創作人鄭興的作品，由他本人填詞。歌曲以溫暖舒緩的民謠風格，描述珍惜當下、與摯愛共度光陰的主題。歌詞樸實卻充滿溫度，沒有華麗的意象，卻能直抵人心最柔軟的地方。鄭興以真誠的音樂態度獲得了第35屆金曲獎最佳年度歌曲，成為台灣創作音樂的代表性聲音之一。`,
+    lyrics: `最好的時光
+作詞：鄭興
+作曲：鄭興
+演唱：鄭興
+
+這是最好的時光
+在你身邊的每一刻
+這是最好的時光
+不管昨天明天如何
+
+窗外的光 照進來
+讓我看見你的臉
+時間走得很慢
+也許是因為你在
+
+我不需要什麼承諾
+只想好好過今天
+你笑的時候
+就是全世界
+
+這是最好的時光
+我們都不年輕了
+卻還是那麼在意
+彼此的一個眼神
+
+走過了那麼多的路
+見過了那麼多的人
+最後才明白
+最好的 就在身邊
+
+夜深了
+你在旁邊 睡著了
+我輕輕地
+幫你蓋好了被子
+
+聽著你的呼吸
+數著夜空中的星星
+一切都那麼安靜
+一切都那麼美好
+
+最好的時光
+就是現在
+就是此時此刻
+
+最好的時光
+不需要多華麗
+只需要你在
+
+讓我把這些日子
+一首一首地寫成歌
+讓這些歌
+陪你到永遠
+
+最好的時光
+原來一直都在
+就在你握著我的手的
+每一天
+
+最好的時光
+最好的時光
+就是和你在一起
+的每一天`
+  },
+  // ==================== 2025 ====================
+  {
+    year: 2025, session: 36,
+    title: "星期五晚上",
+    artist: "Energy",
+    lyricist: "周以諾",
+    award: "最佳年度歌曲",
+    emoji: "🌟",
+    intro: `《星期五晚上》是台灣男子偶像團體Energy的作品，由周以諾填詞。歌曲以星期五晚上的放鬆歡愉心情出發，描繪現代人在忙碌工作一週後的心靈解放。輕快的節奏與朗朗上口的旋律讓這首歌瞬間成為大眾的快樂記憶，成功打入各年齡層。Energy憑藉此曲在第36屆金曲獎（2025年）奪得最佳年度歌曲，寫下團體輝煌的里程碑。`,
+    lyrics: `星期五晚上
+作詞：周以諾
+作曲：劉偉德
+演唱：Energy
+
+星期五晚上 終於到了
+把這一週的煩惱 都忘了
+星期五晚上 我們出發
+去找那心裡想要的快樂
+
+燈光亮起來 音樂放起來
+今晚我們不回家
+就讓時間 停在這裡
+讓快樂 陪著我們
+
+不管明天 會怎麼樣
+今晚的笑容 最閃亮
+朋友在身邊 音樂放最大聲
+星期五晚上 屬於我們
+
+加班的辛苦 報告的煩惱
+老闆的碎碎念 客戶的催催催
+全部都丟掉 今晚不加班
+
+城市的霓虹閃爍
+每個人都在微笑
+街頭巷尾 都是歡笑聲
+
+星期五晚上 我們最嗨
+手機拿起來 全部都靜音
+今晚只屬於我和你
+
+這一刻 要記住
+不要讓它溜走
+星期五晚上 最美好
+
+Dance with me 跟著節奏
+Dance with me 不用理由
+星期五晚上 萬歲
+每個星期五都是 新的開始
+
+如果你問我 最喜歡哪一天
+我一定會說 星期五的晚上
+
+因為那天晚上
+所有的壓力都消失
+所有的煩惱都遠離
+
+星期五晚上
+你和我一起
+笑到天亮
+玩到瘋掉
+
+這就是青春
+這就是快樂
+星期五晚上
+屬於我們的夜晚
+
+Ooh ooh 星期五晚上
+Ooh ooh 自由的夜晚
+Ooh ooh 星期五晚上
+Ooh ooh 快樂的夜晚
+
+一直到 太陽升起來
+我們還不捨得說再見
+星期五晚上 萬歲`
+  }
+];
+
+const years = [];
+for (let y = 2000; y <= 2025; y++) years.push(String(y));
+
+let currentYear = 'all';
+let currentSearch = '';
+
+function buildFilterBar() {
+  const bar = document.getElementById('filterBar');
+  let html = `<button class="filter-btn ${currentYear==='all'?'active':''}" onclick="filterYear('all')">全部</button>`;
+  years.forEach(y => {
+    html += `<button class="filter-btn ${currentYear===y?'active':''}" onclick="filterYear('${y}')">${y}</button>`;
+  });
+  html += `<input class="search-input" type="text" placeholder="🔍 搜尋歌曲 / 歌手" oninput="searchSongs(this.value)">`;
+  bar.innerHTML = html;
+}
+
+function render() {
+  const container = document.getElementById('main-content');
+  const banner = document.getElementById('noteBanner');
+  let data = SONGS;
+
+  if (currentYear !== 'all') {
+    data = data.filter(s => String(s.year) === currentYear);
+    banner.style.display = 'none';
+  } else {
+    banner.style.display = data.some(s => s.note) ? 'block' : 'none';
+  }
+  if (currentSearch) {
+    const q = currentSearch.toLowerCase();
+    data = data.filter(s =>
+      s.title.toLowerCase().includes(q) ||
+      s.artist.toLowerCase().includes(q) ||
+      s.lyricist.toLowerCase().includes(q)
+    );
+  }
+
+  if (data.length === 0) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">🎵</div><p>找不到相關歌曲</p></div>`;
+    return;
+  }
+
+  container.innerHTML = data.map((s, i) => {
+    const isNote = s.note;
+    return `
+    <div class="timeline-year" data-year="${s.year}">
+      <div class="year-badge">
+        <div class="year-num">${s.year}</div>
+        <div class="year-届">第${s.session}屆</div>
+      </div>
+      <div class="year-line">
+        <div class="year-dot ${isNote?'no-award':''}"></div>
+        <div class="year-vline"></div>
+      </div>
+      <div class="song-card-wrap">
+        <div class="song-card">
+          <div class="song-card-header">
+            <div class="song-avatar ${isNote?'no-award':''}">${s.emoji}</div>
+            <div class="song-info">
+              <div class="song-title">《${s.title}》</div>
+              <div class="song-artist">🎤 ${s.artist}</div>
+              <div class="song-tags">
+                <span class="tag ${isNote?'tag-note':'tag-award'}">🏆 ${s.award}</span>
+                ${s.lyricist !== '—' ? `<span class="tag tag-lyricist">✍️ 詞：${s.lyricist}</span>` : ''}
+              </div>
+            </div>
+            <button class="expand-btn" onclick="toggleCard(this)" title="展開歌詞">＋</button>
+          </div>
+          <div class="song-details">
+            <div class="detail-section">
+              <div class="detail-label">📖 歌曲簡介</div>
+              <div class="detail-text">${s.intro}</div>
+            </div>
+            <div class="detail-section" style="border-top:1px solid var(--border)">
+              <div class="detail-label">🎼 完整歌詞</div>
+              <div class="lyrics-block">${s.lyrics}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCard(btn) {
+  const card = btn.closest('.song-card');
+  const details = card.querySelector('.song-details');
+  const isOpen = details.classList.contains('open');
+  details.classList.toggle('open');
+  btn.textContent = isOpen ? '＋' : '－';
+}
+
+function filterYear(year) {
+  currentYear = year;
+  buildFilterBar();
+  render();
+  if (year !== 'all') {
+    const el = document.querySelector(`.timeline-year[data-year="${year}"]`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+function searchSongs(val) {
+  currentSearch = val.trim();
+  render();
+}
+
+// Back to top
+window.addEventListener('scroll', () => {
+  document.getElementById('backTop').classList.toggle('show', window.scrollY > 400);
+});
+
+buildFilterBar();
+render();
+</script>
+</body>
+</html>
