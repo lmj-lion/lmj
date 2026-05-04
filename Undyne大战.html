@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>UNDERTALE - Undyne the Undying</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#000;display:flex;justify-content:center;align-items:center;height:100vh;overflow:hidden}
+  canvas{image-rendering:pixelated;width:960px;height:720px;box-shadow:0 0 40px rgba(0,0,0,1)}
+</style>
+</head>
+<body>
+<canvas id="c" width="640" height="480"></canvas>
+<script>
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+ctx.imageSmoothingEnabled=false;
+ctx.mozImageSmoothingEnabled=false;
+ctx.webkitImageSmoothingEnabled=false;
+
+const W=640,H=480;
+
+// ========== 颜色常量 ==========
+const C={
+  BLACK:'#000000',WHITE:'#ffffff',RED:'#ff0000',DRED:'#500000',
+  YELLOW:'#ffff00',DYELLOW:'#aaaa00',BLUE:'#00ffff',DBLUE:'#0088aa',
+  GREEN:'#00ff00',DGREEN:'#008800',GRAY:'#888888',DGRAY:'#444444',
+  ORANGE:'#ff8800',PURPLE:'#8800ff',DPURPLE:'#440088'
+};
+
+// ========== 游戏状态 ==========
+const ST={
+  INTRO:0, DIALOGUE:1, MENU:2,
+  BRED:3, BGREEN:4,
+  ATTACK:5, ITEMS:6, ACT:7, SPARE:8,
+  DEAD:9, ENDING:10
+};
+const ATTACK_BAR_IMG=new Image();
+ATTACK_BAR_IMG.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAAAuCAIAAACJatgqAABDpUlEQVR4nO29CbBtZ3UeuP5h7zPc6U16epoQkjAgi8kQYbDdxGBD0ZAmZZeHJiY2oRzHceL2VLTjeKhyUx6SDq5gp1IUCTi42zS247ixGYyxicJsgZCQkCULNEtvfu/ed4dzzt7/lPrW+vc++5x73tMVFkIC/XXrvXP33Wfvf1z/Wt/61vqJOsVaS0/m8tKXvrT9nHaV9k+qKY/hq9tnPtqHF0VhuTyGlTlflfZYzv+o3V2nL/y6BdXSxM95xJrPPHAvrVvwpq9l0U+kynz9lLxOjDEhBO89PTmLUiqlFGNsr7z97W/v9Xp1XW9ubq6urr7iFa9o/yTC67EVWF2BuIfaUkqklGFBiopcd911t9xyS3vDM57xjLvvvjslZYyJEYOSUuIxkrfEXQtg2vCmaOrUKE1v0Of/yuzXd9+jUA/+r3tbvkeplLtf4z5568y9zUNS+ye+S3UeleRf9I68K1cjD5ZqHkumqZ48CLcpHdrW4oYE0dgZl7i7LvlvCyq561JMxijpf1ks7Ti20w+DlbgX8Ac0pCiMc4Grh06RvnoUE+Wpcr6iFNYGPcnL9ddfv/uitVZr/au/+qtz1x9bgbXnouW9ZVkSaWMKY4ojR4789m//dvemn//5XzCm0KrkHQVf4W9Za/pKGZWVlKlukX8a5UV+tPzIZWUIPwX/4HPni+3nzqNw0exWYprrzQ9xffgHy1IXSpeke6RLUhY/WvMPr1nVfEaNLFFB1ON/NURGdzSktvItWey5/ia3SlqRPzft4tY2zZbP01/RIfxio3T7o7XV2jZPaP9d8EEWiNE9RaU1fa4kHocRRcEwyb/cEK1Vyb922oQfqdZT5SsvuU/njKYnXdFayxY3d10pFbnIlvg1L5jUkJ+6qidKU0wxJdraXnd+3L2tLPopqpiwIWutWXOMpLxPHpJBEf+lM14LZW/+u4yrND+0N3dGu+2Z5hK0m0Xdtft6CtNXGyJuTl6S8mFGyYqNYhUpoAFQRFgdmX5F9K/Ij51+MU3fmy+6mTp02tXoPPlmeZ4oZ/K5vcJXuRpptn/wjLaZ+QPPrOB9IM2XFGSvUhSgu0atIyl8gPjlBsRYG0NG03TePYmX1xOoTDeBrj31pCtS+W4TRJERQdzr9b5G+tR8idE7pzDXdTalsPPbytiZzncu8tJnsZSwoLEkCgiFyKv6UbWmsb2aX6SkRb/uln1p181zX2wvXuCv3ael6bwT2cLtm63Dblty7+2dbQheIXKwuQ4pOvu0fE/3bbteB7McOi4LWZ9FKKYbK2GR9TzsIqn5EFgmd1uE8iReYk84gSV2OD2ZS1fDEt1KNJSyLJ8g8Jy11nsfIv31Tf9N2a1PfPKvfvZnfk9ZcuFc9zalktEmxCBwidZYAj/3r170g294me2NBoMlVgGa2S/IDkrGkJpfGfxSXQinAb+SpsS2GEXWGAxrcIGRF0GL5LMgQb4R95ovtjCT6H2V/Cn19GgyUkrV9aiOm1GdnfidoihIsTYUe3yTwlcphuBUMsv6OUatajxcHuWIDMSLxq9KM7yXNNuzLCS4ZovlK+rZdAgqKX+Mbd/oRKq93pSUNaxHNNO00nZSjYbDfqjX3Hj1f3nJL1XnuG8V/dGf/vh1LzgU6FRMY6OXq2pclv2Sjhx9IPzsT/6bz3+64sraDu7WGbunyjemwBJB0L0SY0ZqY4wOGssTYop4D5FhTPz5//MXlR2tbxwf9Gn/vrIsBrM3phC9hkHhGHeHifQ/brjpvgdvndSu32cLZS9Kx9QiajDn+T2fBdj5FKjm81QHaa5MdZDmQw2bCJrj4cvo+pdceuWzBi6dSpAFLLBSbqAFnBSSilrrG/7yxG03H4fMhLgJpLI5F2PKr4BNN8W2Z3XFPRXBuhuBxRXp+iL4r7vF1e51ECL1ehrzyA3OnVXRQ72Siv3O2951+FLyqVaavKPhkOqawoS2N4b33C3S/KnyVRBYT15pxYIAWsBCk7BBjuZ5A1+L9op6QsHHG/7qDoFplKJRr0yBcdy2QKHwGXwKAWg30U2fops+40RAALLfXRatZ9ECWg8ZZMqMb665rSPIlBYnZl6TGVpWQJZSAnYDs7S5wRhet0QuUNEj52n5MPXLjSuuPqLSmM2nBtBi8RApxaChC6v45x84/vEPZX2qfXs2glHRppatK7LbwMiTV9qi2QpbTKLI7dWdL86ZhHuBwdk9yGZ6Got2m/2WRB/7SM2vycBWHgq0adRRpNrd9AmxcT55y5ObePUkLLLmLKM5gpxHigNKsJg6ZWaBZgUnTsernshqnseP5wyixuphlsBcaZdpKxdCV//ih7fQkkglflJgaaKMsBBmFDdXwem3fYp2tmKpliKVcIolwat6uWLJl7aYTCbJ0PYW2T75rQ7u39XswpAB9Szlc58kdkdSJKshL1l4dJVFrpzciV8BhPOfwtTukyvSLXLnXgau7VXfIvq51FJnNDMon9ub70gQVblRTwhQ4slenhJYj2fp8qfiBXW9RlTMCCXddcjxhzkzb7bMQDNzPKw49aa1lKhs9ClKSpmBhko0gn6SZpS15hlQN1Rvai2qghIbf2pIPkwm1dZgpTfx9fSlIkABf6XBYGl5uGJ7D8GOLxv9Q9D31IA8EFZl1gnF+4galHwfI97Q8QwTI7h1Xa4WxJbIx7YH2r5qFTYZjtZP2fyaK9z90JLaFnX1zBiJaDetRvskNluekOUpgfU4Fz+jL6jzySxZ4TMEy6w7ZO5kx4yaN/DmmAf818iOyayhtNqKKCMNqxQfBYnXJvWBjHsldAD56hRLIipKOnwJve77rj1wZKQ11bUnW6QUkk5Unr7mmQfLQa10TcqxrjZFxLU2IUy8t+M0eP0PX/7q1zpXWe334f1mTGaT4iBWF91847GP/PExVkZZZGRhqim63Dl2zAKuR55dd+jYjgqDjhJTtvluV6WEltQxjCFzmUjRsjTmPsi/5wMN85/atwdI7ljMDEF3WJ+yCv8O5SmB9TiXWcAkw8C7t2HwelC6i2TqfW/WxsIltJupkF17/NgGywEsBoBKuOWwaCCZNFaysvSs54/7QyAykBgWZKKUGrgqkSnw79Oupte9/vDaRedimsBFUPQjC7barTnnajcKYIo2UA9QOQhZS6VPtTG9qh4998VaKZuS0XGS26z7FEuTli66fHhqXd4LSdewmSIldrol6g2prujMierEl8UNtxuL6uBimVzP/ZASpDY/dkY163oVdn/At+YGsZU+C2CphpI/96enAKy/a/n6EFhdquLXsA5xz7exPJoRU+epebrgi85Hnprf1cXw4W/ZhqAkOLQYQ4FS9MzQhk1z+dPpzb/ySmVGjPerEGrDUUTGDhPkS7S9cb/oD5fj/sOTYlCPRqOypEmokjalKWErarJqEGNQEGFRI1xFJwW8C2QFH1MMMfmYKmN8h3VVkqpJhcn42Dc/f98//5lvCSEh4id5rWxDQShZ3Niy74IrP/7Re/+ftx9Ff/hFnK9WRRXjLAX8wOpkSltieb3QKXi+0sL1U23TNHyF5jolfqoI6uz4nB2WPU6Vp8rXWGDtRZrER3P/HC6TZlGb7kzpbIPzsE8zexajRQsn1oKKaUSigFIvX+lwROZnJ0gNwF8k3i2xX0kcb9NSGBhCKYIqTSlbNZ0tXkat81j47GbXKxaU8L+ZAaF4oWoOhhEfnBiC7aJrlQZD+4/Qi1+2sj0aVVWllNJKJag6yquoVOGTM6W3MSqaVOmk205KWQpapaCT9RUZUwCG8sZaG2IyMEepDiby6jUmKc8RKlqruBSrKmqXWGfE87HEQ1lWVJy95roBGmWShoRzcO4pQ9FbbUKKy8NBoVcefDhkiSGStzuIXWu69VoIQAbCVwGqAvho7O+cEVuLiLmikQFNk5t5BOExZfckZDTIo1ZZ7yu+T4xuJpJiQ5B9QZ5tSXkEkQKaQ8RPCJm4r0gbrWIKe4O+9FQT59DFC94p5YKCctp7zZMfuRoLcdKvYvn60LCyv3520c5JpguIv47Myt9o0fG58dj9kGwXJAqJZ5nWtolz6r465qolBU6Vtsl42Dm4aiT8rFu8Z04DWJZAYWYjjlkm7qYvLGwWimuNoWJIP/Ez1/u4o1Isip4EFUfnjSlcHRX1Bku0sfXAFVfb4yfvjmlEKhqjoB2RgfQsaafejGrS62/6uq8pBr1p4rImC9ehsSnpFLVP5FPhqQhY3YNIXicKpkxgWkUfSdt+IOOTGSAaUfSWECVkMlnAUcqRcoq2oVVBuLuktAOB1paq75Pxgc5tjgudnnntkZ/9hRWVhiGESGPuGY6+RI9JR8kM1xT7BGCuT3HpbW/9AAU3BfsfsSvbpcsfhCCWlS2RQxnGcr6JQ0gJ4BssWeiGYIOBfMbfSjGCCcvRjSmBttJ9lciqvQRmpGzVSuxnnoePBd2wM8kfWWY93qriE01gSWyw9EJ6JCdau6tIPoNOvH63YLJ0ZM2CATifb7uhfec/75ZWreLWyBTsmdFY3ndz5WdGlLWeIqXqx3/yxb5KDz947iPvv1tMh9nnAkiKRG/+pVdHvVO5jah8SNBQmGMeEdyTq814dkIo5RRp5g+WsfBeOQwhRV+UZXnq1Mkzp04Xxjg3JjpldKrqLVMYMs65UE1odeVASuHO23Zu/8Jx52KKTdw1jJ64tBxf8opLr33BoZAqMpNEZdArSQ9FPQTIE8hofWpSPHRmfHYco+lRWMYqUhSgKOEhEOh10hSiqp9zMB1csTDvogO4Dx2yDEp7hXG0ZHntRk1DWJDJG1rZPtv76J/f8dCXScUlpU4UpTK2jgmmK4Xde4z8KmJJCyVCa/ujP31JUZjJpO6VSzFy33XmWE6g0SL3bIrypgLevCYfRInWaymZftmv6zMhVtCXNHTsIimdrIlrW2f1R/7ijoeOM61BtH+pGtSrPM7W6oCmcbaJqfMXBvgjygLFY85Dr+edMNO2t7O0fX37pw6Kl0OlWo+QdMSF39+tyuMXKfl4Cqw9CuMWEbiAC7lrDJ7vsXOcgM4TZu5qler2gQt1sTn0e67gW5iuFDWbGtpIeG9jXkztlKhURYbe8E+eraL5xA13ffT9d9lkNFCVTonYjUnRa7/3xRdfbqPdjGoUVc0Baph/Gcu+oMAqyXjvjTEpKR0P23jw4zfc9mNv+D2s30RG4a4IseemGGA629pDTZgA2YLxn0SHLqUjV25c98Knj8elVTqo0qmlEjRPRyoorRxQK9qmfXecGD14VunhgVjF6JH2J2plTKGMDlQpr432pLcOleN9+/qRNmJCrGQiE3RIyjFzlFE3UFKBYtnC2qhtXB2tDz7xYbrlk0RuJw/L1H8Hy2uBz2F+oOieh39pZ3LM2NqFTWttZIusm4im+Ty1KsE/S+AskKpZ9GqVDlA0hVFkjlbubPSVLnSIuge7lfr68D1/u3PTrXc8eJIfxMpyRixamgiuSIQ7Gs9WJV7Ab93DwkwOo5dT2Wi2c5PIvl1oSbf92RxpgIBuxOPsIu3O2wuLpPSNq2G1XbaIjv1IIPRXEuHcDTFp2QN7lK0za4MFn6JnXqdrBwOwXfbCfhaxFet+r1dEtbXv4EPJF0X5sAWc42cVLA6K5E3xj//o/Uee1jPFTrKjaCoQjxSC7OaoCwuLjpzmIda6sGmy36Qjt33+JOJkIKUk2FpbbWGhaCeAFxx2SmuDECKtGWuj5J3XaENkkH5QlD23o6iwThVj6rlYARZP0SjjAhnEGywff+ihO7886i+vRd+z0ahkVCRQHhTWvSEWgkZtHeirKw8kcsGAN5DIRA2zEVgZcKC8lpLSdV0bY1zQhT4IjQcchpKRI9avpft2D5qEQ3JLIc6Ul1jlD/7Zx7bGD/YGYTQ+q7UynOpD1BAJ0swCq+Xiwk2JUApkorGBk+QoHfYnn2LafNVrLip65yicMyFY09MxWGXqerW/NPzmF5CD2g980ySfiRaMfaG+2DnsaDudOh62t+T3Rk+fDnBLEOuCEkINE4xSklVIDJKIoVYwCbDHgaLTi+31xhuTU1/s6r7unHzC0MmecAILxlFXEHS4P7vKnIo7/ySerwxVA8iYpQIs9K/BBIyDpe6mPVOTdgPfjRRYSzV2OPqNf/96UpWxScH0A/QegksE5YOSSePeZLvemXzpuksU0fDOS6jQVKiJnUVTAC0FrYL+D2+5jeduloZaoBPGxzqgyrRN3Q85kDnTI45TugMfQo/1K1n05MAw0DEEyU5nFHZ8Zh3h/+xOlBgdiBmKRTznNlxRjylOUrFOJtAKqZWkIUVJGeNMdXr1oY8dP/r+isJD6FKH8GoVkFKK4C/k5cFuujvefPmzr/mmiVWuLNlqjBSMSlRSKlU9jFvaAAFKymSJZ1NNsQqkSkqhFvK91ibFafLADm2/NYWaXwVxT/Qv3/inOTmMA1dDrPbuNMsbX6vFthBW08VJkQmntYG/8eUvO/j0i/qF2+jb6Or1XqFqD4zw4P61N/7TZ53cfj7pwK0jTvEFEaM4cJIilebgzlZ673v+7H/8940UyNdUFOQc6Wn2jq7hRt0PUu2YMDpuEpOjFOciUlux1XIsGus4/0m4Jheg4HfDDC7gtnr8wKzHM5ZwT17CnHJEdjiOoTOtecUFv+Ye7vYRgmk5jVz3dXPqbn5mIiosot6o4+exPfKRfvTHnr+yj0hvw+JpQPwG4shygK9jT27STkpe0KC1GfRXfv0tv2/Y9SRARxPWm0WLqYtC6Ymv/tEbLhpvrbtxAPyQqhhmomQDtJlCU5kQ3SIewprSSFB4bhsC8C64/1LIvkhpdteXlCgBHZa2hQTEnHNpNvZJjhnKGa0YnsO4eE+uTv1yMHJh38qRB9bj5++8v1IXJ6W9IQ8OhLGpKE6ePnamyqIqFuSVimxMJadCMNwGcYvdvb5189HTI7Xj4OZLNnmoeCmG8anLD/Wed6lRkE5RMZddKQDWpVY9wzqBsN+RO4stwblRbuYG+x872kTK4ol1RwjOAJfl3Fxql8KcsBCMldW/RDpZdCPGSVMYlVTruu4loipB+qa0ubH1u++89/Z7/lYqZANvE4lz0Ui2RQ7bVJquu+7IT7/5+ePJNuI10Y0JmALSVKi5qNhuiREgo1b9lOit//Z2Q+Th1Z0nkkk0rXxDpgH0uwTtOyt6XSsQ/JW8e7Xvmf67ILBC74WV9nWsYfEK4WB9KSnmDFCt84U9L7t7DTiJz4Egu585lZUwSBS5xKEkPHtMiTHzfOWH3/QPDh9ZUmbMOVUyFh7CzGyBLytOMzJDemkYadYMDa295Vd+xiiIVJll09xyIrCcA5fc0rmzqSCkr9QaBqBuYzk6hTf2lsFQEjnpDKZv50g/WXetFT37wbE+xmkwgadG1hC6LWnuvmCZdja+bTQgnJB88HXc3pqc3D4blYFoEgGX9NpmPLdDVMECS0rrGIpM+ZKYaXFggJpwcn377oeP1WFnUiRSXoO70NMpDtT2sAjm6WtlTHU1Lgz5CMefnubb6+iT8+b8HkoGwFlpXNALXXWGU15NQ5I0e1EEAujp5KVTTYoWqs6UWuHrybkz8d676bZPd4ZTojW7XjhOd/qqV13+g6//3yb1aQOyh0ZCIU6U1BVYCxqRkrW96DGhfuu3bkeQU5G14l3jN6MccQgohNfUjW1EgmtJvpaDn3ZrGFmNmBOgXbxMf6MJLAnVzzzhhLVhGnwRupUowNmHK9maUMAzspZi6gqstuMG3ejiz932G+Vwm5Sr65oPgNAhJGRzUKunT21993f92mTcuK4b0yDuBowWLnIWIdqLtCqa0OGuaqkN9TVZ7U7sX766qkeUispRP8xDUkl7mGtwmzUtYhh6dvdk3+hsdXZ9QBqFKWu0efrUwp1vyGLrQAQdNDHwNosiej86+4xLrlraf1ksjmCBIVtDsKZM0U5OD8/ceM/Nt20kUCXqkhuHfKmZX8/pZGKgULzoGc967bd/68qyq8ptbwLibiD7wVxYSpXe/rKLytph7WuLbNGMMWnv22Gfa/y873guQVhH35yGDS7c4XYvxfYp6DtYoiomKiTw20ZjQsE7oYuYp9xNK/21/RepdIbGhzNOpEcKkY+WVddclVRvJ0O/9sufe8svfw4bp2+m3MJhWFRNw3EIt9/578iuO79pi3nKVcftnmWK0cVke+0nf+KXb/xUqjjTrRgDDPsjLT2rVwtFOae9kD2TkdROatavTx7WI3NBM+MyY+6sHRDnsYvBe7KG8VHRcuFZy2ZQSrU2dNVVT/vsjTfveiMjDSknZPn0pz6ny43xZLsoipRSURihblp1QMV9haLK552Q9xF+BGt2Uyu186sUMV1lqokCmJKDfZphpDa01weqNPWZtLkV0k7SFUQwlsD5eqZLam8X3t7SPSfYYQw2dy82z2zzQUyn5AVZu7JSZTkp7X3lR+tn1ndcrFOMNhnHWWOgaJ47HDYnVEPMYRMR3YIpl5xcPYLVlaym0m3FnY0q+M2qtxkBcBHpkU6xCrYmd7iAEw5eRsg68aAtsPHbVrAekWUWq86zYcxdkd2uRuWgVkyRr/nF2f1Fvg8cqk1eyPkGjVAsYd0hwEnFpI2pnXHOeEekdrhiniJ4aR0Vq4HYAmvqksiUfbKYXbsR8AVmLzHDBRPvk//94XH8orLrTWLFNqRUYxFhwrRKVkwprAyvOHS4fPo11XjEZBRlH7zPJ4/ccZJCv8FI26oWGENch8HI83yhrP+GY7pThyaOugH/IB/ACMbA+IB4NZZoAHLbr5gCgub7fuB//cM/eN+FH/7v3/rHEnufIkCZssfga0BQbQEYgFMO4MFFIqtgiFHCPtxiIgtWDF8pIr7mtAGuAVqD76ZrkakTDRYSI18agSmkAnuc5g8saGyWKdq763172c3mMtwvAkcfGTqd8XOLFAhkvdanzm7e8rfVubBpddFLduIdb+Zq38icPAtITvIGS6pQziMKI4SpZNEqrZN54Pj65+98IC3tuHITFl+ypM8pCsvl8OLV4sClMaRIiMthHWG3n6SbZXSmtnq+cfO3dcRTywV5BNu4VW+ZDcB8VAwS24OYrwwqgr6AewJEFRmMKmKP0AGc15Q31wwatcLXWl1AqcEcT6EWviu7SS9YpYQFgulUlvrf/ebvjcMZGJhzqOVcsxpopSz/5lWvevp3fuezJ5NJv7c67F36K7/49pNHiXxUjFc2POdpV7VzMa86PlFEHJu7O/UbyCTkSS+JRORjjXiOfpNGjmd8q/u0o4KZEenQke4SbTu74rNPctfecyf/IXVy0Yk1x/IBrG6Is6IxmaAxd4ZMbJrWR9dZEfxEPIDHswkpnnMnyy+gdBpiV4IAH9nN3OkEYRLiNdN8Lo2mkB3we+hLmVpImddY0W28xTTfS/PrwgfG7mZuIpnkDXgQhV1ZG9XlMRcfjgeULk00gV0hUcVD46UTYUB2BJXLA16HLQk/BT+RDd2oQzL1qbR0rxuMJkWsewaaQensmqHqkFd6qHfSiX7yJUhn3OOgROD503Hvfp4ORe72tFhUyWbQWsxdL8UFwrDYphZiSrImxyECVmMbL5jkwWTnVgauMOgPiS+JkMbcaHYgYU5hW5bRDCmZREFrlZLL0oyDNx9pfBNXwta1v+uOM7OUtFmMryvrG6rD9S+qLvr25eHystJ+bal/+dW0PULGVG7jLoHFGzw8DCU7MTV4fHXFaEmeP4+vl/CR8iMvZKOdj73JRBN438DfEWTamALeHKbzThlWsIOLmCpOKx4jTwP4UJDIkg0QVtV1Qfec+KVxdUJbFUa6QGCHkPAsGwu84mPf0P4f+N6faivBzEux3FzSleg1TDPOHn/Ma0xCy+Ipn0wDOJmf3iDXYlmI1SAfuuZYJr/wfBRUu8U152WKNFgWEJilMQ1tz0Ty0LtAu1zQ69j8s2TEwRV4HVPOQc/EFGeFTq4AtG5azvYONFS47jg5jEDFDVNHRK44o/JZGBKymy0jVmZmZIGsLBOo8Cq4OInA3UBW19q5KiWnVZmMoxBg2KlgeqWnkTgHLAfKeOXRmOaBIdS9wgddeVUjs4OFRmaiCz4Yqk+NdlZVHD6NSmOQ2B00LWSWKYBt5wnUYHCdxDVZJcmzkVVXmxCyA/5Xx1ZqTjmUIGX5Yp7+De0bajyz/NG1jLtr+ATZylbK6sBwO4ZBU0A8N/PjcmJuzKsYayXbDlAvngwSbiHTWlKDsbdOOlzjVBK2fHVE7CXve23kIv4uUlhNhQjz1OCczdXGPdnp3eCnArJlmntqxS4mDv3+O4695x3/VeSX6tHb//P3fMcrLjcGKr9ztbEKcVEJnBF5EOh/nFgjRCrsqk0H3/3OP3vLL96I98M1BmMkgYXcIwKjlftW9NBUWl0Hl3A2gWjKYJUAAsuHQi2y3OflYO60vWtYu+MhZx83p41jVhhmf6O/Qgh9U7iAEFYmarNs4vzmzEeJtqCrn9m77KqLQjgFe0HD6E84xa6mmN79X97j4k5SpghDnXT2Y2OJcUZH0ioMolvt20NEDyxY+Biu+R2gXTwdxy3GHiFyMxrHVDrnSXOeDrrwhsioCnFKYXkolosRX/0sINwUSYmZ+dF8PCcbmyy5eHoC+JVtgImYXe2cNbMAzC/7OOFBl/NjxQWUjE1RjJXpq8+zSbKER/1FQAB+ojL6A/3e0y4qlgP7s3BYoonQf0yp7IqN64HVYXw/Z0mWDs84VkjBxYuWzDMu7rkCgdK8ApVSTpPaNzxyUTEpwgmcTNMECuDZGbvs1m1aZzQRU057gVdgV2F3QkhfR1NgT1yS5PpNq1UjSttniUvPF4VBqi95GjPSWIuu+RdwGERlikobDNMMtihDPNuN3f9n12S2TNucgu0Ni4bjPFrwlK0xRTDwKBZts4Ob1z7M2xTHtqQbPnr7A8duLYqYQjCgijlJj4HtIWmJesKq5FzklMoUeg/cd+q7X1uMRsE7tX5Sf+k2x4sEqT9yrkdOsqoVIi5g8Yt/H8H0eX9ghpAEJO1mkMzBEfnzHgXW3P7fjQ3uRip1RZiCWR+U1laUFxcc9nq4ITBZ0L/QrEbaFJgEBb3xx1/+Q294zanTN5eDoj/sVbDqt1NQ+waXXnP5r8FrywcatDws1gryQFnmEH7L85/TqWRjE2RHeIfZIEaK0KSm7nAHPJKxCqaZS+4oSETx+XZEV+M8FkgeegSbdu1Ffl3z21QWsX2QjdYc59FWaXYWKla8mu/g3J8IowMvQ/QPowza2OgL3vZq5jWxVwHcHjn+j1eYzFQsZd6gZPNlIA3tEg2s8+qcwmW+VvkcY2yzuiBly6gK5y5dLV/wTYd6oLSNCwPoGV4m3T/dO/jFtd46YEYnMxHTXVIBSk5liCdnEl17ycpLr1pbvWjobT6W0dKmTjr5flEVS/7UGMFD0CWFaYmwP47XOd8URS9BReBKNwzPDOa12iLUjwiPMx+lJrw82RU6p5wmI05Y54uOOzVzUkOylny0zYlBnT28g/XMl66XZmqjNaHsEjqfb5OTwbvfmOodavGE4ViEbpbZWfhpUTXkjXi7m9B7/9+7srSLGRvrPkqy7JcW9qD0TlHSNc+mP/3Lf01pZzyq3/uuW/7NXZ9mM6ObRpEZHlhtrc9RNgiOU5I0ARyA3zmZ/HzoJO1RYHWortmW4iUnZzd1OxSWSAshGSDWoE0HShO8W5Muo3Oxv+z/7//r72/vHPdaL+9bOb19yk3cwUMH1pb6H/7wn7/rHX/e7+UTgsFjEPWZbNihQvdjqLG9ekELWBY0nSqboNLTiDydj7Vqwswy0TJTvXjxT7+emyaESViPVkxKPihTQHIGm9tZ24i5RMAs2rFpU+0yDiCXs0bQzJPsTmTPDZMHOydEzHU7b0Pwk8botHW/8JbrX/iSA7a3qcJwvPn0H/q+dxIAJRZkkjhUHO4SZYxlGVKKS0srk7oKri4LevZz6bfe9j2j6mik8F/fe9cH/v/N7XOqFudVx46YwTwYKm7NL68hEGJaSsXaw+v2hi+fHjllEX6rargmtIpF/5h5aF3ObbaRGapsM3OWlWzU5F798jE9+OKO6m1Es8lkXPLaItlVPHPpUv3yqwzv7xFBkdw07hMN0cgJBWdKk4sVk0/RxVfQD/7QZd/2siv7g/WsF0N8FymupXDk+1/330KNZ0tHSYgzjlaDjofAS0o0GNLv/8n36+Io0UZZFFaRqye9/nCyc+TEieL/+Kn3nT0JrqsSJS6RRopRDuthsSfbZDtVuvg58oJlCyEPnE4BJl8mqomB2kgcOWgjLNDO0nTx4qVBzL0WoGsnlah9Mj87bJcp2YWnZKy4imydRRrw5gZuTcbpsYJ7Dg4BMIjJg3d99530A//wd2LlKNTfeu3l7/jNv7/jT23ZLcTMI6ZR9eyKorUbb37wT979gNSOARCGRGASSM6CppF8GG1T+ebM3Sl5JaOue9Sw1B5STwjFTq62ahePZB+DYXsQzN98DX3vi78pjQ/DKbdUbtQn60m1f9/BU+finzx848N3gdIpaEPrmsY0VtoHrzmzEjyGQiQC5giggKHzgGgJpI9qZi0rRzmT1Mxm1bQ/b6oct8UbFs80CZ2ftZJ2ERQ7aYYF2JpKq93906id/HCZmKwA4DWKyc9trpLFJYrtf/HFB6++5oqoT4RKxwOXWpz4Z1zD+udnJlBam0g1mXq+8s7Vlp0FywO67tlXbo6Q92Ft3/2IBQFftlGZz7OnNalaZIGB9AGoL6oq9Ler8ODEwJMPW67UWhexPFiXk2g5KSCroqL78/Mz/syX+UTDpS2/em5ScZZjsfuGhpypx1brqMsUXUL4DIi50m2i9OYk73NmXCcfX1HQ4SOrz3zWFdaCf8cCAHHcKa4Gd9hYcjXrmEwFFTuv+zhrsaKuueYqMyhdOFlailWV0kpRFOPRgZV9BxGGJT3cyCOJFc8wepPJddqBc13ayp+mUSL1gtDfW6HURghllaspOet0YyuL1JUylYsXsCJnQWd5N4MrsJdT9Jn9x5uMzHUeNhFdRiusQQW97JZPbgHmIHrJxfS6v/eSur5vbM5AacIqMqVdcWa19OFDyw8Ex459TUWfk7MxbO8rcpVnylETO9Wl70wb29Q5zXnTF5SGfZJNa4+ekg6mTuhJtkFaXYzD3yVRkKVXvvay/srZ4XDSd+nKYvXoe/9qLRbGrHirg1ovjTmrjt4ztvYYLVW0wW+yHI8KI0RqD+mLXRbGJNBZ6XXIR6GywA5OZOxMzgOOvUNH8DLO7Y/YP9krI49qHB3M+NIRxM98NrCcstyFJfKBUUxKabOWtFT83fNE/t6ZGtmyFFgmm0jn+15uAnpSlM33/cHnPn/j7eVgcurk+njn09UIdCbxvcEhjr0nx6/IpBdHSu1qaY/3dN+99JZf+f8qd0bZdNPNoarJ9kxdc1xb10vQ/o9Vgp8cBANZWGs9MWBLLcXajbbTpl6JyITD4QlRFUGvBHJsOUDXlzmCb/uM6CBRVAERR3G0U5/ZqPzy0o5ewQpQwaRhQRMVtsa+DgF0AZjnKv9gFoi0EkBB8EfRKaaEMgQYbW3QB993x5fueIhTKmPNJaojVPOeVvtrzyGEoReQfL2RDsjXxc6ahGw744r+7a9/KOjjPm5QcLy7yDE9q6W9BLHKLbqPDTQqxErMzJNWnE0lRnudvwvVtnVSyx/Cbvfz3P/UfMp5a0VPZBLnjEmY2WFijy8oHZnVfQVXqVBOjAnbmPPMIwJnjY+2hmWYvTj88FKr6oHJ3e//gtm8d1VvN88327rcGBQHB+Yf/qO1Gh1eJZoILSlRv9red8vnjj/wJaYn5s1SM8FblvzOVMPCh7wxZ4HVYmALfIWYK6x85L9ohlgdb4nTVELFkF74YhWTH42DLklrN+jTeETjil7yXfv37b/UTcLqtjl4/7j4g3vXqn5/4CoX1nq6CpONEPT+4cGHzT4KG4J25jg4TGuIeW5Okegg0eXGXhJ7A4wTOM+KAIqm0pyxRvenp/s1GYJy8rr2dN+VmA6Tei7pYeo7qkTh8UQ7ZMe95TurjU1K46YbcopI0AzQxyKrD0V6lrYHojZU99GBQNfGeJfdLs1n62pEFAqMguz2jZIhPkSWDbIxwmyGpapt40aY9nnjc2xUBkr0sb84zTIafjKtzuigA9U5/g9rbSI3KrbCGNJojx8tKOIwiOMn6D+9/UQmuLJeGomDGbsLqj0TMEd0IIcf0z0gNBGzjBwFCMWx1vaHA0VDT06lqKlAkgmL9DGuOdKKk8M0wXo87+EGg3BIJiHWmvUEW6vC41NANqxEfdsvCmPUGNnsEPzMMdHof+hXYpbkHUikVkcFDjyzz56lj99An7xhS4C7diiZ43Kc1yAgxBxAnP8e4OWRqrJa8c533pb3/I4k12kz0iazRyHBWHXjUC3B1rrB6G0XCPt5egH7ovR2L9IS0dPIXGrK/aGKqB+mvsW8sl+K9Z11qBic7EhD3XjZYEWr4PYr8y12uOz8ijY+TuC3ZG2mpnS6sJ91frtL6ZMGtoizAlFsjeiZvaVLKRgd6uBC0n3ekS3pm1w6rtIYSRkb+MWxz1bWJNxnJnhf3lvXf3Xikq368ChwOjNtoq5tqlcn6grzsu/5jg27Y2ws9HpdT5TuazvQadWpEwcuSxvr1fISTUb05VsjxXG2foBVBwBNsl1h4iOj2SNpWFkphWtEsWNXUnsAm2pZ1Jyj9roX0Lve8+az60dt6QbLFfgoyY53yOoD/+A1/+HEMWhda1v07SX9p8uuPlClsJ1sVDoOhjoak5ZpYKAjwNzYre2L1KCUDhe95196xauvfu6SC4yoODguTBib3h3j7Q/XU/Yt7+1T8dvudZbokuHyj77ou6iucLiqrjDyRp+xg/Wl5Xe8/892Yk601Ox+EpIxnTMF0Suv/9Zrest9V/dAHmCDO+mqLE6X+gsf/uCI94y5XswPgA/3QubfwpKJfGnAXFacL1wjrhCTNntexBTpHBHKEkamZEs1E6VXPGI6sS25l6pw5E17IxaSioWP5Fw1rurCpgLJFFSgOnn0eN/uh9XATIJmoxBW5ZRzD19novFka7y9PlzuDRkfVBQswNwq1Oe8E1wWjQQzgXNFd8ysnDw9y+SW+NnIiw5ZfIm1DeBjhDBv15wPGCNxvofG3Fig4sZmw4+15GCBEslJchbijtO6NXZibmx7vQVk8mVAHD2ib7v2ed/2tKsuGo2U1V6DDdRPZYj2/fd/6eG7b0UwBLprCtLxcGCnUiH0OCXO67/7lRdNYlGPe0ZSECVPZmzp+LL5wvs/cKHRZSRsiejlz3nh9ctLgCOVGrs0VDrW1fJwKdx1+6eOPuiSA48jhydJW0TmwrZRRD2vh3UxrAa9iconL5HpxWKr0vfc8uXf/MC9O4OMpAiHISXqLdGbfuzIW9/2pjPrD2pa2trQr/6O/8gubE4zm9/GBo8cH87W1CNjWAhW4umfPBUDGi7ZsqegSzNYYgz1BlQFuvhpdHb0sfXJ0dV+4V1li6iV3fKun/6e1ZRG0M0pQIP1IdV+DCPCGCQOUq6iWCVbA7iVPrDih5M0KpKyDnguQORC1Wrn1BntamgJ2Nght0ZlHIeaDs0cR9qBOacTDEajC1unz1JdW6OUmcTKqdJu9lbOjepx3OlyTw2vtLw98koQRta5U2e2+y565xJzTGBW2nFhd5aLDI9OUQpx30CfauvT+v/OP43m9XjWouXZGFJF3hrjcSY0AoyQ/m7GPT8944VnOhT8JhRHzh1s1IGsAogjRWQpi3mpPGe/aEwwoLoxFSkNKA20LnqDct9aULE2GoLKCY5I5sBSMezbLSQgVobJpIw7cZ5oDmzH1q2NUWptZXjkoqHqby/ZrRyaYzWioAdpZSWSqRQYZ1HBJw5QiNlAPC7s1GDDl5dMM1qtHtE4ybPhw11Xc07SdiI0lCbOEdjSArKvJYsv1nhEi+PTNKajwwikdOj8uWoXLB1XWZ5gUCRG9XhztHV2o+ibKrlKpzr2QtR+UmEPatlYlOdVJ6oqWp5go/Wzm9tVz1UTZGKWUTWV0VuIHG/LXJQlKzI8E5BjYlyt72wVSIptkh5MYqwnlVlxfrwdI/gKuX/4OXAXNzqBHMIIy5Q9crVCihsxjDzcbv214dWD+Ddhh99CAAcBuvcoTKia+I2t+85NPr+2cnlNavUIlKrJCGwcJJhEZAvVYw6oZWY4K30XLpIdAVYg5sa1z73oOc+/Yv9BkzQSjhljitL0sfGvX/e8S0y5tbxKVX2O/ERN4srKSqI6eAUtAExgDq5LNule1B6+PtgKwcG0DRHhNxLCIKyBKfDW+HkB6p8Ooy8cu3/r2LEhpy4QkB+bCZkTKunvfNGu6TEvFyqiU270wTtuLqHzTSyT3QLRJg02TDluZdPs2IquJntmTfT5e+99ECk9fcE7vSQqqMicG2CFZusjIzatrpMZgm2Futj+riJb2Uz9BXcWLYOBJc9QiMFel1M0I3Asst8CRMROjL58ylmIG5i1SXsHMmb2Ngj7lOkx7HJGU4wuwADIlSgoFTpa7/3qcnHVFWtRmx6yrKSAdW2SKkb3lGXZAqhN5ZucAxK+EwDg0KUXLz/v2ovVoFCakxeD7+OjDj6E/cVYq23EJwrHi41TNEroC1kz4Fw1cnxri3I0QLVCqCkoqzOe7rnZnceooZsKo7/T41N2oShiHHvByv6FN5wLlylcGDBtwmfu/9L999+zj3Ccd83DVoLPrI9iaMha62o+W4hL43POktcxCPu+z3xiSH6lcRKKWR9InbVWNMMLFJEjH/+bW+/BcpCvm5KfoUl/CUm6YKN2EsrNdqPizI4NE4hpVYDUQkKqnBBS7ZKhnqYe0xs9uC5Kx8r1lyaTkRqPqkOHl7fOnRpV/mf/1ZVb235rc1LY5RR6SqmiTBun3F9++N6H7s15Bh9JYGkql+mVrzlAalKU9nXff803P+/g1uQu0uAxYxpq5g2H/bfcdNf7/mirMNqYEk4dFZ074xzZ8JntU5LASCjYw53YH8CKACvQKJCkV0yxRqbveLNEQjU5kSn3UCZfMzfpqEpHdX0jRK5E8LSCwFOKLx2PZ31GMnzAGNrJuqVoM9FdBNTUWA3bTbJopUoRMnM3SWUa4Il7gYFV/DFQOqnpRAQBJ/Eya251+Klb4wkYI01FreA4szFuHPkvKPIcr5XdmmzxtUQKFM+kfESDAIrOjcJe1zw2IMsN/x4igowFNsLyboiErCgYyWnZIFyScovdGk0FJVJZVPcQnSEE8U8Xs/IlqYnfptGkjsHHWiUL8rdGsr1Q1SptiTyWVIGgdynNFYqKNUJxANfjo9vnhiacY1inB9qBPYMlnFTdC6HvU4ACwGRyWD4GGALWMKgDepiwUqp83nR3/eWknSwyNZ8dz+IGHJQmQQ378cxsMEO7AlubLZ8922ZMV6mQwGCOEJpJYXaB3WdXIBWH4/DtY1JjKk9R/AJH4HeUb89mc4A0ckiDETh1UsojxZXRRYrGJTpL6S8MQMXGKy5zlp0cID+2E66TfCaLGAhibOGKTunJZ6dHezP3XqjGoqF1lMhGILZ7Km/xumKfiAd3UgHs4TwWWqe6LNyYqh2qUbkOfdNN6NbPbb/tNz9O5UlbUjmgH/2J65LaSohgUaQd8q/ESamuuOzah2690VXbxR68hJqufAb9xu+8ZuJO1nVdu3OO7u8v1SkinWbDYjHRr9x3l//DdwIZ0GYiOSqXlmlnh1S4H+ZjWsXxK2mboipLo32NROJsezAIDf0qsI9f1kPLOpHNMgeDci7efEgJJqQkh+WVjzgKbTuZ0dnyEY5nS2qVceT5ArgModTMnuSzmKAk7MKXmtnPaDtUTSyeiIODqXHUM/GXqRbZvc0B+50nSAVmlbb5cmEsqTmDXf5nySiiR7SkRvBIQgMOgWFSVoePM52oDH3BjGatmaNJRmIGNSKGi2PgjJmg3I9ZAeHkoS7oEFRvfdPd+8D4qFoKVKZYMrkIiYD3r4fNEWs2iNQB+MTQOZy8IFN59gcqBLucHJV3nTTbZ+3EFAjtiD0yK0bpFeuuXE0v3Fdo5OoUl4OOCsdyZQMGJuGInRi8bcvIshtBWo2IGVA25OaurpxHVf4pmHYNj4dij3TbS6xLqciRJBh99hY0tiJLzAS6WMe/lsG68wxkd+C7CFiOPtAGqIuEoaVgOXsftm2EJBH8DUFckFryvwrljrXezCgH7wVDKwwuGejMuODhbs2GaftbXan5gmQdMezARZob2aKUZ6Zx1yydqqGSuCJLfThe8pTL3nX4eNld1eDzOpHDUuO2uhHdeev4izeNhfJcrtE/+xfLnnZwkIelGhsg1pM3x7/7NVe/6jUrJhxkgGqmdMgeOdEaTMIzm1+gciMop8reyPk+WFFZYBlVqNSnsM+kI1TfWxYDj3QjE1uoeht7tlE9j/UTA1AO0ItDBNzBpHz45ZlJBXkjtPJuhzaDrRBSJgnz5kIWcn2RehHGdI572TUynWIlYa0weTjVpvQ7vFdgvFnGsTtJhabPAFAkaYqbDO1C/WkjWpFcgMWquO2aQc0zdhrrM2W1SWaTxRr7DDOouZ0VDpV6Q9p/kJbWkGQCB2MxaC27z4mHaHuLDVEhFzVhkDR7AuH+fbSyBlBSDkfgM07ZvZRoa4PWjzYH8WXttq2lxKUDBR/7tD4J68Vy0EWinkI696BCXUx0HVkWsorQnKcgUc/CnsPmoJBJfrjtlzaV2cbhFJZUYaIpqAxu68igUqpiFTqmfBpYwwtvV3vpl5bp0EEEJkk3ClFAGxrVtHmW+6EhTE2Vl/brOGMa1P1Lrsh6RE6ew3+tajpzjAGUDoGxYw3tohnsGqrdZc6ZxEgQW7hIq8/9y1sNy3RJJyqpk7KSTvxggUSnz+T8fPkki1lyVW5lI7Dm7N3u8jDWInkT6+yNmYy1IEwl2a+mOlb3wMeZ5jDLSeGsIxhdSGbrQ7AarFvoizjhTWhEjeHq2U5DhgEc1UjV2FJhi94gYHczCiF8/breLHuucmeMOtMxCRU969mXn1l/CKpHI3vFKFg9hOH0OMW3ePj+tNS7+Ni52tglhdgxrJ6Da0fuuyecPbUP+E7lsXHr0jsrjfVmi3n5FUf9kjLBKqtVCNgLkArIQvN0uujrGDiZSxMsNtVTGPDoEkY6Gc2bc+EwVlVnQNgvJTdm00muVyyDNI6VyuiF/DXHKWTW1NxotCn88q5lcgxeQuq9jM82u/c8kWbaCqlyw1iV+Tl3vtf0W92nNBwLqQWYMXWk//i7b1q9+Bajfa8sKCTnt02x7CaHfv6n/uKzn8YdMfV5CrIemuOYMgxjiH7we6/433/kqv0X7yBRq4kBciEqU+p4+BMfPf1z//Rmo8oa4BQfKRZ5CBTVwXpQuqlKzvVLvboUXC9CZpqIQyYskiTHRDUfUtZxreZxY2QMMgfOP5dqpcIyFTqZTdKTQLZXF73QG6rYx2FpGwXba+AzYjfj1S12Kz7YGP0LvlW/9ddf3bNbVk1MQviXKYsq0hfvse/53Ts//IFz0/7sWEOShUVT3H+Avu/1V/7jNz436oezjawQhK/UILlD3/XSDzHLSSOsNQNnGQVgEQHdmn/yGYO8c8kZlI2AZeDTsIjHHpkVIiE+M1kqB2DIftGue5z8pQi59kEPyAffZsdJM88awHHGedLtbiC8Mi8XA3gd2YkYXwY9OwyMmFJtEMjRgKGN0ZN3QN48VCokHQDGR8GCR+sCHoRYDq2NRZApS2WnqYyuwMrEiZxNXTGdAaKWik7edxABMmbs/UQlb22p0sCF3sWXDodrvg6ncW6l1Pjbvv1b/uVP/0jQR/XyTcmOcDQccxBJVUurYRKOWZznu/99v3/7pz72QL+gEUg/OY/d6gqNd2hni7vMWtEyGFmYPVSdO7SNk5B8hYzuXhh+Pn9hdaDDX8uE0se88AoXqDt740QjkTONIQ8en3PZmnmJoImKfvKfvctYIKJicMKMYEv8/vtyXmmbDWGJj2x0UZ1gXCV67x8++IGPPAiFDQYAc7KQ+IYxLQbtK0lfwZY8uxEDA/sevoqceABRNM0ZU4vbL7t11h26reBOmxuuHCvDfoCAEEILmhizlqCVAT/kd8lc0gBBP/uZ+MM/8sFQyUGs7DPkyI9JoI1TTVjbVFRxvk0kLHeFhoV58hT90R/e/6EP31+7nGodKgCHv1OgSYWlVkcqCuPgmNlrQrfZLmhOKZjJ+jj3YVfvid3Mx/Py2s5GZJpxBTVl6uGZv9LV8MX4bO7LpkPXNhXfX3tV0lecnxH9FZcMf824ZQJtnaKf++d/6gNy2wE6YzQBNmGP3vhjF73ytc8g6wBs5Rr2jz/zuebE2TO9g2Pbq4yFwALOj7h+vzMZm3J5Z4dOHIO9cGyd3RtytmQEYpfFhuLQtvzEHO8+bW5DycWBwZnj2PiqxKUtZ6rtoWPSIjX7KxF5j67oGVP5/IDUV7E001srOvYAyOvSgSBfgn3Cp69zcDH2s4xQcJgTTFTGcnEMMTb7zW06t51bI9GEEu8quFBhB0iQQqCSNL45PokLnhDJZ4J4hBwgIMbaFLKdKwuyd+V2MGQGSEDWcl510PSisjjpsPF1InlLc5hzQ9yAsTfZpDtvz18UpiFXpvOOmTJ1enhGNALR8ZOkzuYTSTgVj8gHgaxUjeh9XTvfiYt+/MrUxmsdHmrWrJu1MKd2x8xDULJveO5bGRhrXaEdwmBjHS965J7KrIu7W8+pqpb7mgdYGXPqgSarQStHFUJJR5t9TUPRW7PAWr7s2Hjpvxw6NJmMgYaDuZUmKRaetKMhlVeOgjX9QzS8Z3s0Bp1K7QtgQtWYzMzWZMa9ZBCXsLRZS6jdP3miAOaRFE+cYkWC+Bds0ufrrSa0pYFVsijJnOqmsTkLEgPUAorLYud7W1LpnuROR/mWzET4crWb1vwYlzY6jn/L6jAbsFFDYafCSewRxUpAbTkHxymkGksThqglu3xD2gTH3MZUCxjNjGqFMGmcBiioAVKx6uhK5HJgecJEG7EuEjgTEuQgxrtpEjF32QCNHjQt81EgohVzFjCxj3EIYr4VUJp2ygDl4kxeCf5FsSQr+BDzhK4zNweiuK+oRKKmrDY40LzzgCOOPV9EpnxmaIty1/K/QUrM1eQ0dXiu4AySmoWPL/qqnwczVxBU3x721eKZeg4tmC1zNmG+sVGbBKJq7xTMKRuA3DOgpTQwfqs8ZG3rUbQdO192E3Wi+NqCOdOczNLWOUreLR5RFZF0Kho2w4pysOMna9XOPrN8tdIZsqL+EkzxyWSikOwFB0nCMWmS9r2wPjzxYHHk8DXjneLs/X8NQoamIMnrsV0b6O0aBFuwSdmijxLyN1fPrh4s3O2I7zNy34qy85SuBp2TRkzHrg13LLvO18dWjuSEkxJ83cxdQQ3mz9p9TMtUXrXJkvCDDGJG+VCDU84nH2QcExclF6ZETDZAde4RNh+Fhs+UVsUpQXPSekG7uDjODAOHDs6LcDhCtDVscs9mFKOpZ3vM+nwM+IyGNXvUTSb05g4U2Fm8m0jI0Iwg5yPGRQYZWkotB+uKERc4snaaiTxBEs4sse5hl+J2bQkjctZWh2uLBAwSNpjTy4FM8ZUPb9cknLcEF0CezcjwwUiCWS2cyWp2Rc28ce7GXPVu4vomm2XrZuRfmWE8f95z7idx4fydSjqvlZSrZq3ynMIhhgRaNG8aRtH2xvDMsZVkDvJZtlze9KaXTyZnNNhqcryVxBV6pezxB8b/4g1/7cafwCRopzQmEFATxvMlXaeQdyS5Zbc8CuvpvE1adH2B4tX5ygw/+LG1vac0yt1AwWP3rpknz13B1uWCN0oHOZe0TeAYAH7gkGQHSkHjbWg00eYkCW0KBOumBNcQ/4l7C9E9rdTB+zi8nsNodtdH1lKac0U9cunILNmK22Gaetb4sQ2HTL4lomoqDVsKLNcYBLTmu2aq33MWrwUzUJLtCYTO8goEl6Z6HUmGs6+1MRDZ823/qhfeGxfNKLUnObXbKTmXEy4nNZzFj89jzCBW4VFWX4x9YcZcsKoy/9jiEa+oZE3NgjzV4x363f9847vffeM0hynvKsr5VBjOwcS0T8AVccdNlu++N7gNTfFiCN/eBHG+SIcjfhYoHqBq8AHf/IKpIbyb/MJSjfU3maaM6yPA1RQKjqDO1/aAZLVnPDC3Fhw730Hdu+Fh3bwIWQ+dlzjnLQyuq4LP48M5ezAtQNyKcjxqxi/3LJHbsJcm2lz+3XX23G5YUkpWanp9U1UxaqbioA85MwmbcwaWFA+r+GVnvsuZSjWSWMTISpH46jnCSXZ02a4adxRinzQYu3K2EOxNDNrcyVE86DncZ3G3zvaPJCJinxpOdWZJirObBcrkfFlgAcl0z2S3HBTSPsP0egk0b/Ag2AcFK67fo6hCBeZpa0dP1eFOrXK3REjk5PnZ6L3WMMweosCHaAHQQsqU2Sbxjs7LUuAFOZ8uJZgz7E1qPM6PuoADBOMcmb+Qd7g58DAhKYBYh4pThTXulE7/zqlqfFAedyrQSHacExWcFzwDygFxdS0kL21so0yz8iF5uxYpdDkxvTQ8kzCmlhK4kYAhM2QwHx0wBXyiHNBXS9YecVK2aZMQu8zRnDx7W1oDeN4Kpx6VcBjAZyQ5+ShqpARQcYdj+3NaVVK1NIb3AYlN7EBo59eqJKelFOYUycUF0XMzDZuFUaf5rVujKVKhzVLRjSXs2vpdAKKNxNqr3yMRwucKPlEpUhwxaucR2Csx4B3A7jEv3VXSYlgq1nWAM0VOxrZA3B0n8sPxFs5WkwDtt8mPy91rGGVEMsSksQbLJV4DbJpL+j9ZtKLYTKqc4Iltwl0neXKiDq5SOze7w71oKGcDf5sOW6QDc9ZzhR2CKXqQFZI3ZQZFAhZeI2OG7cP5YA1OyvYJrqWepbKgrXOypwnQNTMbhSIGeWJA1YTXXegezb7KWiqNJ3nZgIYzpQd89QvzTzhnA0KjC/63cXyQIizILU7GMO2NTgtn1koTHi5F7gmJBjwe/Hy9zBO4ongOvkiRg41O3Rqej3KC7779AqSKGVUwf7NNX9yhGbDc/J8QmrmiVDyiBgAAAABJRU5ErkJggg==';
+
+const BGM=new Audio('Undyne_BGM.m4a');
+BGM.loop=true;
+BGM.volume=0.7;
+let bgmStarted=false;
+
+// ========== Web Audio API 音效系统 ==========
+const AudioCtx=new (window.AudioContext||window.webkitAudioContext)();
+let sfxEnabled=true;
+function playSFX(type){
+  if(!sfxEnabled)return;
+  const now=AudioCtx.currentTime;
+  if(type==='type'){
+    // 打字音效：短促方波
+    const o=AudioCtx.createOscillator();
+    const g=AudioCtx.createGain();
+    o.type='square';
+    o.frequency.setValueAtTime(900,now);
+    o.frequency.exponentialRampToValueAtTime(600,now+0.04);
+    g.gain.setValueAtTime(0.08,now);
+    g.gain.exponentialRampToValueAtTime(0.001,now+0.04);
+    o.connect(g);g.connect(AudioCtx.destination);
+    o.start(now);o.stop(now+0.05);
+  }else if(type==='spear'){
+    // 长矛射击：嗖声
+    const o=AudioCtx.createOscillator();
+    const g=AudioCtx.createGain();
+    o.type='triangle';
+    o.frequency.setValueAtTime(500,now);
+    o.frequency.exponentialRampToValueAtTime(200,now+0.12);
+    g.gain.setValueAtTime(0.1,now);
+    g.gain.exponentialRampToValueAtTime(0.001,now+0.14);
+    o.connect(g);g.connect(AudioCtx.destination);
+    o.start(now);o.stop(now+0.14);
+  }else if(type==='block'){
+    // 盾牌格挡：叮
+    const o=AudioCtx.createOscillator();
+    const g=AudioCtx.createGain();
+    o.type='sine';
+    o.frequency.setValueAtTime(1200,now);
+    o.frequency.exponentialRampToValueAtTime(800,now+0.08);
+    g.gain.setValueAtTime(0.12,now);
+    g.gain.exponentialRampToValueAtTime(0.001,now+0.1);
+    o.connect(g);g.connect(AudioCtx.destination);
+    o.start(now);o.stop(now+0.1);
+  }else if(type==='hit'){
+    // 受伤：短促噪声爆发
+    const bufSize=AudioCtx.sampleRate*0.15;
+    const buf=AudioCtx.createBuffer(1,bufSize,AudioCtx.sampleRate);
+    const data=buf.getChannelData(0);
+    for(let i=0;i<bufSize;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/bufSize,2);
+    const n=AudioCtx.createBufferSource();
+    const g=AudioCtx.createGain();
+    n.buffer=buf;
+    g.gain.setValueAtTime(0.25,now);
+    g.gain.exponentialRampToValueAtTime(0.001,now+0.15);
+    n.connect(g);g.connect(AudioCtx.destination);
+    n.start(now);n.stop(now+0.15);
+    // 低频冲击
+    const o=AudioCtx.createOscillator();
+    const og=AudioCtx.createGain();
+    o.type='square';
+    o.frequency.setValueAtTime(150,now);
+    o.frequency.exponentialRampToValueAtTime(40,now+0.1);
+    og.gain.setValueAtTime(0.15,now);
+    og.gain.exponentialRampToValueAtTime(0.001,now+0.12);
+    o.connect(og);og.connect(AudioCtx.destination);
+    o.start(now);o.stop(now+0.12);
+  }
+}
+
+let state=ST.INTRO;
+let frame=0, turn=0, waveTime=0;
+let menuIdx=0;
+const MENU_ITEMS=['战斗','行动','物品','仁慈'];
+
+// ========== 玩家数据 ==========
+let hp=56, maxHp=56;
+let soul={x:320,y:310,vx:0,vy:0,mode:'red',inv:0,flash:0};
+
+// ========== 战斗框 ==========
+let box={x:320,y:300,w:200,h:180,tw:200,th:180,tx:320,ty:300};
+
+// ========== Undyne状态 ==========
+let undyne={pose:'idle',timer:0,blinkTimer:0,alpha:1,dialogIdx:0,hp:23000,maxHp:23000};
+
+// ========== 攻击/粒子系统 ==========
+let attacks=[], particles=[], platforms=[];
+let showMiss=false, missTimer=0, attackBar={pos:0,dir:1,speed:12};
+let selectedItem=0, actIdx=0, spareIdx=0, deadTimer=0;
+let damageNumber=null, endingTimer=0, undyneDefeated=false;
+let showDodge=false, dodgeTimer=0;
+
+// ========== 对话系统 ==========
+let dialog={show:false,text:'',full:'',idx:0,timer:0,hasFace:false,side:'none'};
+
+// ========== 按键状态 ==========
+const keys={};
+document.addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase();
+  keys[k]=true;
+  if(['arrowup','arrowdown','arrowleft','arrowright','z','x','enter',' '].includes(k))e.preventDefault();
+  handleKey(k);
+  if(!bgmStarted){BGM.play().catch(()=>{});bgmStarted=true;}
+});
+document.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
+
+// ========== Undyne像素精灵（从视频帧提取）==========
+// undyne_idle.png (161x180)
+const UNDYNE_IDLE_PIXELS=[
+[[24,45],[49,49],[53,61],[71,92]],
+[[26,45],[49,49],[53,61],[69,94]],
+[[29,45],[49,49],[53,61],[69,94]],
+[[31,33],[36,45],[49,49],[53,61],[67,96],[114,114]],
+[[33,33],[37,43],[49,49],[53,59],[67,96],[114,114]],
+[[37,43],[47,49],[53,59],[65,98],[114,114]],
+[[34,34],[36,43],[49,49],[55,56],[69,94],[114,114]],
+[[31,31],[33,45],[49,51],[69,94],[114,114]],
+[[28,45],[49,49],[71,92],[113,114]],
+[[25,26],[30,31],[34,35],[39,39],[44,44],[49,49],[53,53],[71,92],[112,116]],
+[[49,49],[53,53],[73,90],[114,114]],
+[[49,49],[53,53],[63,65],[73,90],[97,100],[110,110],[114,114]],
+[[49,49],[63,65],[75,88],[97,100],[110,110],[114,114]],
+[[49,49],[55,55],[63,69],[75,88],[93,100],[110,110],[114,114]],
+[[49,49],[77,86],[114,114]],
+[[49,49],[57,57],[71,72],[77,86],[91,92],[107,108],[114,114]],
+[[49,49],[79,84],[114,114]],
+[[47,51],[59,59],[73,74],[79,83],[89,90],[105,106],[114,116]],
+[[37,37],[51,51],[79,83]],
+[[36,37],[51,55],[63,63],[71,71],[75,76],[79,84],[87,88],[103,104],[109,112]],
+[[36,38],[51,51],[63,63],[71,71],[81,82],[111,112]],
+[[36,38],[51,51],[57,59],[63,63],[71,71],[77,78],[81,82],[85,86],[107,108],[112,112],[129,129]],
+[[36,38],[51,51],[63,63],[71,71],[81,82],[112,112],[129,129]],
+[[36,38],[51,51],[63,63],[71,71],[79,84],[103,106],[112,112],[127,129]],
+[[36,38],[51,51],[63,63],[79,84],[112,112],[127,129]],
+[[36,36],[51,51],[63,65],[79,84],[112,112],[127,129]],
+[[36,36],[40,40],[51,51],[63,65],[79,84],[112,112],[127,129]],
+[[36,36],[40,40],[51,51],[57,59],[63,74],[77,86],[99,100],[112,112],[127,129]],
+[[36,36],[40,40],[51,51],[63,67],[77,86],[99,100],[112,112],[129,129]],
+[[36,36],[40,40],[49,55],[63,67],[75,88],[95,100],[103,106],[112,112],[125,125],[129,129]],
+[[17,20],[36,36],[40,40],[53,53],[63,67],[75,88],[95,100],[112,112],[125,125],[129,129]],
+[[17,18],[36,36],[53,53],[63,100],[107,108],[112,112],[125,125],[129,129]],
+[[17,18],[21,22],[36,36],[53,53],[63,66],[69,100],[111,112],[125,125],[129,129]],
+[[17,18],[36,36],[42,42],[53,53],[59,59],[63,65],[69,100],[109,114],[125,125],[129,129],[145,147]],
+[[17,18],[23,24],[36,36],[42,42],[53,53],[65,65],[69,94],[97,98],[110,110],[129,129],[147,147]],
+[[36,36],[42,42],[53,53],[57,57],[65,65],[69,94],[97,98],[103,104],[110,110],[123,123],[129,129],[143,143],[147,147]],
+[[19,20],[25,26],[36,36],[65,65],[73,76],[87,90],[97,98],[109,110],[123,123],[129,129],[147,147]],
+[[20,20],[36,36],[44,44],[51,51],[55,55],[65,67],[73,75],[87,90],[95,98],[105,106],[110,110],[123,123],[129,129],[141,141],[147,147]],
+[[19,20],[27,28],[36,36],[44,44],[55,55],[65,67],[95,98],[129,129]],
+[[36,36],[44,44],[55,55],[65,69],[77,78],[83,86],[93,98],[108,108],[112,112],[121,121],[129,129],[139,139],[145,145]],
+[[21,22],[29,30],[36,36],[55,55],[67,69],[77,77],[83,86],[93,96],[108,108],[112,112],[121,121],[129,129],[145,145]],
+[[21,22],[36,36],[46,46],[55,55],[67,71],[77,77],[83,86],[91,96],[108,108],[121,121],[129,129],[137,137],[145,145]],
+[[21,22],[32,32],[36,36],[46,46],[55,55],[67,71],[83,84],[91,96],[107,108],[129,129]],
+[[36,36],[46,46],[55,55],[67,74],[83,84],[89,96],[107,108],[119,119],[129,129],[135,135],[143,143]],
+[[24,24],[34,36],[46,46],[67,72],[89,94],[108,108],[119,119],[129,129],[135,135],[143,143]],
+[[23,24],[35,36],[48,48],[69,71],[75,78],[87,94],[119,119],[129,129],[133,133],[143,143]],
+[[5,12],[23,24],[36,36],[48,48],[69,69],[71,71],[75,76],[89,92],[119,119],[129,129],[133,133],[143,143]],
+[[5,6],[8,8],[36,36],[48,48],[71,73],[79,86],[89,92],[117,117],[129,131],[141,141]],
+[[5,6],[13,18],[26,26],[48,48],[71,71],[73,73],[79,85],[89,90],[117,117],[129,131],[141,141]],
+[[17,17],[26,26],[50,50],[73,78],[87,90],[117,117],[129,129],[141,141]],
+[[7,8],[19,26],[50,50],[73,78],[87,89],[115,115],[129,129],[153,159]],
+[[8,8],[20,26],[50,50],[75,88],[115,115],[139,139],[147,155],[157,160]],
+[[9,10],[50,50],[75,87],[115,115],[139,139],[147,151],[159,159]],
+[[52,52],[70,70],[115,115],[139,145],[159,159]],
+[[11,14],[52,52],[70,70],[92,93],[113,113],[139,139],[141,145],[157,157]],
+[[11,14],[54,54],[68,70],[92,93],[113,113],[157,157]],
+[[15,15],[54,54],[68,70],[94,97],[111,111],[155,155]],
+[[15,15],[55,55],[61,65],[71,73],[93,95],[111,111],[151,151],[155,155]],
+[[16,17],[55,55],[61,65],[71,73],[87,91],[97,102],[108,108],[150,153]],
+[[16,17],[57,61],[88,91],[98,102],[108,108],[148,148]],
+[[18,19],[57,61],[101,106],[148,148]],
+[[19,19],[57,61],[101,106],[146,146]],
+[[21,23],[57,61],[101,106],[146,146]],
+[[20,23],[59,63],[102,106],[144,144]],
+[[25,25],[27,28],[59,63],[101,104],[144,144]],
+[[24,29],[63,67],[100,104],[140,142]],
+[[27,27],[31,33],[63,67],[97,100],[140,142]],
+[[27,27],[31,33],[69,69],[95,100],[134,138]],
+[[29,29],[35,35],[37,37],[69,69],[93,94],[134,138]],
+[[29,29],[35,37],[67,73],[93,94],[130,132],[136,136]],
+[[31,31],[33,33],[39,40],[67,73],[89,96],[130,132],[136,136]],
+[[31,33],[39,43],[65,65],[75,77],[89,96],[126,128],[134,134]],
+[[35,37],[42,43],[65,65],[75,79],[98,98],[126,128],[134,134]],
+[[35,37],[45,45],[49,49],[63,63],[79,88],[97,98],[120,122],[124,124],[130,130]],
+[[39,40],[45,49],[63,63],[120,124],[130,132]],
+[[39,41],[43,43],[61,61],[99,100],[114,114],[126,126]],
+[[42,43],[51,61],[75,75],[115,118],[126,128]],
+[[59,59],[77,77],[87,87],[101,112],[120,122]],
+[[45,49],[59,59],[77,78],[104,104],[120,124]],
+[[37,37],[49,49],[79,86],[104,104],[114,114]],
+[[37,37],[49,57],[81,82],[113,118]],
+[[37,37],[51,55],[81,81],[105,114],[134,134]],
+[[37,37],[51,55],[81,82],[110,114],[134,134]],
+[[37,37],[51,55],[81,82],[110,114],[134,134]],
+[[51,55],[65,67],[81,82],[110,114],[134,134]],
+[[31,31],[35,35],[51,55],[65,68],[81,82],[96,98],[110,114],[134,134]],
+[[51,55],[65,69],[81,82],[95,98],[110,114]],
+[[28,29],[33,33],[51,55],[65,70],[81,82],[93,98],[110,114],[136,136],[140,140]],
+[[29,29],[51,55],[65,71],[81,82],[93,98],[110,112],[136,136]],
+[[28,29],[53,55],[65,71],[81,82],[91,98],[110,112],[136,138],[142,142]],
+[[53,55],[65,73],[81,82],[91,98],[110,112],[142,142]],
+[[30,31],[49,49],[53,55],[67,73],[81,81],[89,98],[110,112],[120,120],[142,142]],
+[[49,49],[53,55],[67,75],[81,81],[89,96],[110,110],[120,120]],
+[[33,35],[49,49],[54,55],[67,76],[81,81],[87,96],[110,110],[120,120],[140,140]],
+[[33,35],[49,49],[54,54],[67,77],[87,95],[109,109]],
+[[33,37],[47,49],[54,54],[66,76],[84,95],[107,109],[122,122],[138,138]],
+[[47,47],[54,56],[66,77],[84,95],[107,107],[122,122],[138,138]],
+[[20,21],[39,47],[56,56],[68,79],[82,95],[107,107],[122,122],[136,140]],
+[[20,21],[43,45],[56,56],[68,79],[82,93],[106,107],[136,138]],
+[[20,21],[31,37],[43,45],[56,56],[68,93],[104,107],[124,124],[130,138]],
+[[20,21],[31,37],[56,58],[68,93],[104,105],[124,124],[130,132]],
+[[20,23],[31,41],[58,58],[70,93],[103,105],[124,132]],
+[[20,23],[39,41],[58,62],[70,91],[103,103]],
+[[20,23],[39,45],[58,62],[70,91],[98,103],[134,140]],
+[[20,23],[43,43],[58,66],[70,91],[98,103],[134,140]],
+[[20,23],[43,43],[60,61],[72,91],[94,103],[124,140]],
+[[20,23],[60,60],[72,89],[100,101],[125,134]],
+[[20,25],[29,35],[60,60],[72,89],[100,101],[126,134]],
+[[20,25],[29,35],[60,62],[72,89],[100,101]],
+[[20,39],[60,62],[74,89],[98,101]],
+[[22,39],[60,62],[74,87],[98,101]],
+[[23,43],[55,56],[62,62],[74,86],[98,101]],
+[[23,31],[36,43],[55,58],[62,62],[70,71],[74,87],[98,101]],
+[[16,17],[23,31],[37,45],[55,57],[62,62],[76,87],[90,91],[98,101],[126,138]],
+[[16,17],[23,29],[37,45],[55,57],[62,68],[76,85],[98,99],[126,138]],
+[[16,17],[23,29],[37,45],[53,57],[78,85],[92,99],[124,142]],
+[[16,17],[24,29],[40,45],[53,56],[78,83],[124,142]],
+[[16,17],[25,29],[41,45],[51,55],[78,83],[124,144]],
+[[16,17],[25,29],[41,43],[51,53],[62,62],[80,81],[124,126],[131,132],[138,143]],
+[[16,19],[25,29],[41,43],[49,53],[62,62],[80,80],[98,99],[124,126],[132,132],[138,142]],
+[[16,19],[25,29],[41,43],[49,53],[62,62],[80,80],[98,99],[126,126],[138,141]],
+[[16,19],[25,29],[39,43],[49,53],[62,62],[98,98],[104,104],[126,126],[138,140]],
+[[16,19],[25,29],[39,42],[49,52],[59,59],[103,104],[126,126],[138,140]],
+[[16,21],[25,41],[47,51],[59,59],[80,81],[102,104],[126,126],[138,140]],
+[[18,21],[24,41],[47,50],[59,63],[80,80],[99,104],[126,126],[138,140]],
+[[19,39],[45,49],[59,63],[80,80],[99,104],[126,128],[136,140],[144,146]],
+[[19,38],[45,49],[59,65],[80,80],[97,104],[126,128],[136,140],[144,146]],
+[[18,31],[37,37],[43,47],[59,62],[65,65],[80,81],[98,98],[101,104],[126,130],[134,144]],
+[[20,31],[37,37],[43,47],[59,61],[67,67],[80,80],[95,96],[101,101],[103,104],[126,130],[134,144]],
+[[20,35],[43,47],[59,61],[67,67],[96,96],[103,104],[126,144]],
+[[22,35],[43,47],[59,61],[69,71],[91,94],[104,104],[127,144]],
+[[23,37],[45,45],[59,61],[69,70],[91,91],[94,94],[102,102],[106,106],[128,142]],
+[[22,37],[45,45],[57,57],[61,61],[73,90],[101,102],[106,106],[128,142]],
+[[23,39],[57,57],[61,61],[73,82],[84,87],[89,90],[101,101],[105,106],[128,140]],
+[[23,39],[57,57],[63,63],[79,82],[99,100],[106,106],[128,140]],
+[[23,41],[57,57],[63,63],[79,82],[108,108],[124,140]],
+[[23,41],[55,55],[65,67],[79,83],[96,98],[108,108],[124,140]],
+[[25,41],[55,55],[65,67],[79,83],[96,98],[107,108],[122,142]],
+[[24,41],[55,55],[69,73],[77,77],[81,81],[85,86],[89,94],[108,108],[122,142]],
+[[23,31],[37,41],[55,55],[69,73],[77,78],[81,82],[85,86],[89,94],[110,110],[122,142]],
+[[23,31],[37,41],[53,53],[75,78],[81,82],[85,88],[110,110],[122,142]],
+[[22,29],[39,41],[53,53],[75,78],[81,82],[85,87],[109,110],[122,124],[128,142]],
+[[23,29],[39,41],[53,53],[73,73],[77,78],[81,82],[85,86],[89,90],[110,110],[122,124],[128,142]],
+[[23,27],[33,35],[39,41],[53,53],[73,73],[77,77],[81,82],[85,86],[89,90],[112,112],[122,124],[128,140]],
+[[22,27],[33,35],[39,41],[51,51],[71,71],[73,73],[77,78],[81,82],[85,86],[89,90],[112,112],[122,124],[128,140]],
+[[22,25],[31,35],[39,41],[51,51],[71,73],[77,78],[81,82],[85,86],[89,91],[112,112],[126,140]],
+[[22,25],[31,35],[39,41],[51,51],[69,69],[73,73],[77,78],[81,86],[89,90],[93,94],[112,112],[126,140]],
+[[22,25],[29,33],[51,51],[69,69],[73,73],[77,86],[89,90],[93,94],[114,114],[124,138]],
+[[20,25],[29,33],[49,49],[67,69],[73,75],[87,87],[89,90],[93,94],[96,96],[114,114],[124,138]],
+[[20,23],[29,33],[37,37],[49,49],[67,69],[73,75],[87,90],[93,96],[114,114],[124,136]],
+[[20,23],[29,33],[37,37],[49,49],[65,65],[69,70],[91,94],[97,98],[114,114],[124,136]],
+[[20,23],[29,31],[35,35],[49,49],[65,65],[69,71],[83,84],[91,94],[97,98],[114,114],[126,134]],
+[[20,23],[29,31],[35,35],[49,49],[65,66],[83,83],[97,99],[114,114],[126,134]],
+[[20,21],[28,29],[49,49],[63,67],[83,83],[95,100]],
+[[20,21],[27,29],[61,63],[83,83],[99,100],[102,102],[116,116]],
+[[26,27],[47,47],[61,63],[83,83],[100,101],[116,116]],
+[[24,27],[47,47],[59,59],[83,83],[104,105],[117,117]],
+[[24,25],[48,48],[60,60],[83,84],[117,117]],
+[[21,25],[48,48],[58,58],[83,84],[106,107],[117,117]],
+[[20,25],[48,48],[58,58],[83,84]],
+[[18,25],[56,56],[83,84],[108,109],[119,119]],
+[[18,23],[46,46],[56,56],[83,84],[119,119]],
+[[18,23],[46,46],[83,83],[104,104],[110,111],[119,119]],
+[[18,21],[46,46],[54,54],[83,84],[103,104],[119,119]],
+[[16,21],[46,46],[63,78],[83,86],[89,94],[103,104],[113,113],[119,119]],
+[[16,19],[46,46],[52,52],[85,86],[93,94],[103,104],[119,119]],
+[[14,19],[46,46],[59,61],[79,82],[85,86],[93,96],[103,104],[115,115],[119,119]],
+[[14,19],[46,46],[50,50],[85,86],[95,96],[103,104],[115,115],[119,119]],
+[[14,19],[46,46],[50,50],[57,57],[83,86],[95,98],[103,104],[115,115],[119,119]],
+[[14,17],[46,46],[50,50],[85,86],[95,98]],
+[[4,5],[12,17],[55,55],[85,86],[95,100],[117,117]],
+[[4,5],[12,15],[48,48],[55,55],[97,100]],
+[[4,5],[10,15],[55,55],[87,88],[97,102]],
+[[4,5],[10,13],[87,88],[99,102]],
+[[2,5],[8,13],[53,53],[87,88],[99,104]],
+[[2,5],[8,13],[53,53],[87,88],[99,104]],
+[[2,5],[8,13],[53,53],[87,88],[99,104]],
+[[2,5],[8,11],[53,53],[87,88],[99,104]],
+[[0,11],[53,53],[87,88],[99,104]],
+[[0,1],[4,9],[53,53],[100,102]]
+];
+
+// undyne_visor.png (163x180)
+const UNDYNE_VISOR_PIXELS=[
+[[14,50],[54,70],[74,95]],
+[[16,49],[52,53],[55,69],[72,97]],
+[[19,23],[25,48],[51,53],[56,69],[72,97]],
+[[22,23],[28,48],[51,52],[56,66],[70,99],[116,117]],
+[[30,48],[52,52],[56,64],[70,99],[116,117]],
+[[33,37],[39,47],[49,52],[56,61],[63,64],[68,101],[116,117]],
+[[36,37],[40,46],[49,52],[56,61],[68,101],[116,117]],
+[[37,48],[51,55],[57,59],[72,97],[116,117]],
+[[35,35],[37,48],[52,55],[72,97],[116,117]],
+[[32,32],[35,48],[51,53],[56,56],[74,81],[84,85],[90,95],[115,119]],
+[[32,45],[47,48],[51,52],[56,57],[74,81],[84,85],[90,95],[114,119]],
+[[30,36],[38,39],[51,52],[56,57],[66,68],[84,87],[100,103],[113,113],[116,118]],
+[[29,31],[51,52],[56,57],[66,69],[84,87],[100,103],[112,113],[116,117]],
+[[51,52],[58,58],[66,70],[82,89],[96,103],[112,113],[116,117]],
+[[51,52],[58,59],[66,71],[82,89],[96,103],[112,113],[116,117]],
+[[51,53],[59,60],[66,101],[111,111],[116,117]],
+[[52,52],[60,61],[66,101],[110,111],[116,117]],
+[[38,38],[51,53],[66,101],[116,119],[131,131]],
+[[37,38],[49,55],[62,63],[66,101],[108,109],[116,119],[130,132]],
+[[37,39],[53,55],[57,57],[66,67],[69,98],[114,114],[130,131]],
+[[37,40],[54,59],[66,67],[70,97],[106,107],[112,115],[128,131]],
+[[37,40],[54,57],[66,66],[70,93],[95,97],[107,107],[112,112],[114,115],[128,131]],
+[[37,40],[54,54],[60,63],[70,93],[110,111],[114,115],[128,131]],
+[[37,40],[54,55],[60,62],[70,79],[81,93],[110,111],[114,115],[128,131]],
+[[37,40],[54,55],[66,67],[72,79],[82,87],[106,109],[114,115],[128,131]],
+[[37,40],[54,55],[66,67],[72,78],[82,87],[106,109],[114,115],[128,131]],
+[[37,38],[41,42],[54,55],[66,69],[82,87],[114,115],[126,127],[131,132]],
+[[37,38],[41,42],[54,55],[66,69],[82,87],[114,115],[126,127],[130,131]],
+[[37,38],[41,42],[54,55],[60,63],[66,71],[80,89],[102,103],[114,115],[126,127],[130,131]],
+[[37,38],[41,42],[53,55],[60,62],[66,71],[80,89],[102,103],[114,115],[126,127],[130,131]],
+[[19,22],[37,38],[41,42],[51,59],[66,77],[80,89],[98,103],[106,109],[114,115],[126,127],[130,131],[147,150]],
+[[19,22],[37,38],[42,42],[52,58],[66,77],[80,89],[98,103],[106,109],[114,115],[126,127],[130,131],[147,150]],
+[[19,20],[23,24],[37,38],[43,44],[56,57],[66,75],[78,91],[94,103],[110,111],[114,115],[124,125],[130,132],[145,146],[149,150]],
+[[19,20],[23,24],[37,38],[43,44],[56,57],[66,75],[78,91],[94,103],[110,111],[114,115],[124,125],[130,131],[145,145],[149,150]],
+[[19,20],[25,26],[37,38],[43,44],[56,57],[62,63],[66,73],[76,93],[98,103],[112,117],[124,125],[130,132],[143,144],[149,150]],
+[[19,20],[25,26],[37,38],[44,44],[56,57],[62,62],[66,73],[76,93],[98,103],[112,117],[124,125],[130,131],[143,143],[149,150]],
+[[21,22],[27,28],[37,38],[45,46],[56,57],[60,61],[68,101],[106,107],[112,113],[122,123],[130,131],[141,142],[147,148]],
+[[21,22],[27,28],[37,38],[45,46],[56,56],[60,60],[68,101],[106,107],[112,113],[122,123],[130,131],[141,141],[147,148]],
+[[21,22],[29,30],[37,38],[45,46],[53,55],[58,59],[68,101],[108,109],[112,113],[122,123],[130,131],[139,140],[147,148]],
+[[21,22],[29,30],[37,38],[46,46],[54,54],[58,59],[68,101],[108,109],[112,113],[122,123],[130,131],[139,139],[147,148]],
+[[23,24],[31,32],[37,38],[47,48],[58,59],[68,77],[84,87],[94,101],[110,111],[114,115],[120,121],[130,131],[137,138],[145,146]],
+[[23,24],[31,32],[37,38],[47,48],[58,59],[68,77],[84,87],[94,101],[110,111],[114,115],[120,121],[130,131],[137,137],[145,146]],
+[[23,24],[33,34],[37,38],[47,48],[58,59],[70,73],[80,83],[88,89],[98,99],[110,111],[120,121],[130,131],[134,136],[145,146]],
+[[23,24],[33,34],[37,38],[48,48],[58,59],[70,73],[80,83],[88,89],[98,99],[110,111],[120,121],[131,132],[135,135],[145,146]],
+[[25,26],[35,38],[49,50],[58,59],[70,77],[82,83],[86,89],[94,99],[110,111],[118,119],[130,134],[143,144]],
+[[25,26],[35,38],[49,50],[58,59],[70,77],[82,83],[86,89],[94,99],[110,111],[118,119],[130,133],[143,144]],
+[[7,14],[25,26],[37,38],[49,50],[72,75],[78,81],[90,97],[118,119],[130,131],[143,144],[155,162]],
+[[7,14],[25,26],[37,38],[50,50],[72,75],[78,81],[90,97],[118,119],[131,131],[143,144],[155,162]],
+[[7,8],[15,20],[27,28],[51,53],[74,77],[82,89],[92,95],[116,117],[141,142],[149,154],[161,162]],
+[[7,8],[15,20],[27,28],[51,53],[74,77],[82,89],[92,95],[116,117],[141,142],[149,154],[161,162]],
+[[9,10],[21,28],[51,53],[76,81],[90,93],[116,117],[141,148],[159,160]],
+[[9,10],[21,28],[52,53],[76,81],[90,93],[116,117],[141,148],[159,160]],
+[[11,12],[53,55],[72,73],[78,91],[94,95],[114,115],[157,158]],
+[[11,12],[54,55],[72,73],[78,91],[94,95],[114,115],[157,158]],
+[[13,16],[56,57],[70,73],[96,99],[112,113],[153,156]],
+[[13,16],[56,57],[70,73],[96,99],[112,113],[153,156]],
+[[17,18],[58,59],[64,69],[74,77],[90,95],[100,105],[110,111],[151,152]],
+[[17,18],[58,59],[64,69],[74,77],[90,95],[100,105],[110,111],[151,152]],
+[[19,20],[60,65],[104,109],[149,150]],
+[[19,20],[60,65],[104,109],[149,150]],
+[[21,22],[60,65],[104,109],[147,148]],
+[[21,22],[60,65],[104,109],[147,148]],
+[[23,26],[62,67],[102,107],[143,146]],
+[[23,26],[62,67],[102,107],[143,146]],
+[[27,32],[66,71],[98,103],[137,142]],
+[[27,32],[66,71],[98,103],[137,142]],
+[[29,30],[33,36],[72,73],[96,97],[133,136],[139,140]],
+[[29,30],[33,36],[72,73],[96,97],[132,136],[139,140]],
+[[31,32],[37,40],[70,77],[92,99],[128,131],[137,138]],
+[[31,32],[37,40],[70,77],[92,99],[128,132],[137,138]],
+[[33,36],[41,46],[68,69],[78,91],[100,101],[122,127],[133,136]],
+[[33,36],[41,46],[68,69],[78,91],[100,101],[122,127],[132,136]],
+[[37,40],[47,52],[66,67],[102,103],[116,121],[128,132]],
+[[37,40],[47,52],[66,67],[102,103],[116,121],[128,132]],
+[[41,46],[54,65],[78,79],[90,91],[104,115],[122,127]],
+[[41,46],[54,65],[78,79],[90,91],[104,115],[122,127]],
+[[47,53],[62,63],[80,89],[106,107],[116,121],[135,135]],
+[[47,52],[62,63],[80,89],[106,107],[116,121],[135,136]],
+[[37,38],[51,61],[84,85],[108,117],[135,136]],
+[[37,38],[51,61],[84,85],[108,117],[135,136]],
+[[37,38],[53,59],[84,85],[112,117],[135,136]],
+[[37,38],[54,59],[84,85],[112,117],[134,136]],
+[[31,32],[35,36],[54,59],[68,71],[84,85],[98,101],[112,117],[137,137],[141,141]],
+[[31,32],[35,36],[54,59],[68,71],[84,85],[98,101],[112,117],[137,138],[141,142]],
+[[29,30],[33,34],[54,59],[68,73],[84,85],[96,101],[112,117],[137,140],[143,143]],
+[[29,30],[33,34],[53,59],[68,73],[84,85],[96,101],[112,117],[137,140],[143,144]],
+[[29,30],[54,59],[68,75],[84,85],[94,101],[112,115],[121,121],[143,144]],
+[[29,30],[53,59],[68,75],[84,85],[94,101],[112,115],[120,121],[143,144]],
+[[31,32],[50,50],[55,59],[68,77],[84,85],[92,101],[112,115],[120,121],[141,142]],
+[[31,32],[49,50],[56,59],[68,77],[84,85],[92,101],[112,115],[120,121],[141,142]],
+[[33,36],[49,51],[56,59],[69,79],[84,85],[90,99],[112,113],[122,123],[139,140]],
+[[33,36],[49,50],[56,59],[70,79],[84,85],[90,99],[112,113],[122,123],[139,140]],
+[[33,38],[48,50],[57,59],[70,81],[88,99],[110,113],[122,123],[137,141]],
+[[33,38],[47,51],[58,59],[70,81],[88,99],[110,113],[122,123],[137,142]],
+[[21,22],[39,49],[58,60],[70,83],[86,99],[110,112],[124,125],[131,140]],
+[[21,22],[39,48],[58,61],[70,83],[86,99],[110,111],[124,125],[131,140]],
+[[21,22],[32,38],[43,47],[59,61],[71,97],[109,111],[124,134]],
+[[21,22],[31,38],[43,46],[60,61],[72,97],[108,111],[124,134]],
+[[21,23],[31,41],[60,61],[72,97],[108,110],[136,136],[138,138],[141,141]],
+[[21,24],[31,42],[60,63],[72,97],[106,109],[135,142]],
+[[21,24],[32,37],[39,43],[61,63],[73,97],[106,108],[134,142]],
+[[21,24],[39,46],[62,67],[74,95],[102,107],[124,142]],
+[[21,24],[40,46],[62,67],[74,95],[102,107],[126,141]],
+[[21,24],[43,44],[62,71],[74,95],[98,107],[126,136]],
+[[21,24],[44,44],[62,70],[74,95],[98,107],[127,135]],
+[[21,26],[29,36],[60,61],[64,65],[76,93],[104,105]],
+[[21,26],[29,37],[59,61],[64,65],[76,93],[104,105]],
+[[21,40],[58,61],[64,67],[76,93],[102,105]],
+[[21,41],[57,61],[64,67],[76,93],[102,105]],
+[[23,44],[56,61],[64,67],[78,91],[102,105],[126,140]],
+[[23,45],[56,60],[64,67],[78,91],[102,105],[126,140]],
+[[17,18],[23,32],[37,46],[56,59],[66,67],[74,75],[78,91],[94,95],[102,105],[124,144]],
+[[17,18],[23,32],[37,46],[55,59],[66,67],[74,75],[78,91],[94,95],[102,105],[124,144]],
+[[17,18],[23,30],[37,46],[53,59],[66,73],[80,89],[96,103],[124,146]],
+[[17,18],[23,30],[38,46],[53,58],[66,73],[80,89],[96,103],[124,145]],
+[[17,18],[25,30],[41,46],[51,57],[82,87],[124,127],[133,133],[139,144]],
+[[17,18],[25,30],[41,46],[51,56],[82,87],[125,127],[133,133],[139,143]],
+[[17,20],[25,30],[41,44],[49,55],[66,67],[84,85],[102,103],[126,127],[139,142]],
+[[17,20],[25,30],[41,44],[49,55],[66,67],[84,85],[102,103],[126,127],[139,142]],
+[[17,20],[25,30],[39,44],[49,55],[66,67],[102,103],[126,127],[139,142]],
+[[17,20],[25,30],[39,44],[49,54],[66,67],[102,103],[126,128],[138,142]],
+[[17,22],[25,42],[47,52],[62,63],[84,85],[106,107],[126,129],[137,142],[145,148]],
+[[17,22],[25,42],[47,52],[62,63],[84,85],[106,107],[126,130],[136,142],[145,148]],
+[[19,40],[45,50],[62,67],[84,85],[102,107],[126,132],[134,146]],
+[[19,40],[45,50],[62,67],[84,85],[102,107],[126,132],[134,146]],
+[[19,32],[37,38],[43,48],[62,69],[84,85],[100,107],[126,146]],
+[[19,32],[37,38],[43,48],[62,69],[84,85],[100,107],[126,146]],
+[[21,36],[43,48],[62,65],[70,71],[98,99],[104,107],[128,144]],
+[[21,36],[43,48],[62,65],[70,71],[98,99],[104,107],[128,144]],
+[[23,38],[45,46],[62,65],[72,75],[94,97],[106,107],[128,142]],
+[[23,38],[45,46],[62,65],[72,75],[94,97],[106,107],[128,142]],
+[[23,40],[60,61],[64,65],[76,93],[104,105],[108,109],[124,142]],
+[[23,40],[60,61],[64,65],[76,93],[104,105],[108,109],[124,142]],
+[[23,42],[60,61],[66,67],[82,85],[102,103],[108,109],[122,144]],
+[[23,42],[60,61],[66,67],[82,85],[102,103],[108,109],[122,144]],
+[[25,42],[58,59],[68,71],[82,87],[98,101],[110,111],[122,144]],
+[[25,42],[58,59],[68,71],[82,87],[98,101],[110,111],[122,144]],
+[[23,32],[37,42],[58,59],[72,77],[80,81],[84,85],[88,89],[92,97],[110,111],[122,125],[128,144]],
+[[23,32],[37,42],[58,59],[72,77],[80,81],[84,85],[88,89],[92,97],[110,111],[122,125],[128,144]],
+[[23,30],[39,42],[56,57],[78,81],[84,85],[88,91],[112,113],[122,125],[128,142]],
+[[23,30],[39,42],[56,57],[78,81],[84,85],[88,91],[112,113],[122,125],[128,142]],
+[[23,28],[33,36],[39,42],[56,57],[76,77],[80,81],[84,85],[88,89],[92,93],[112,113],[126,142]],
+[[23,28],[33,36],[39,42],[56,57],[76,77],[80,81],[84,85],[88,89],[92,93],[112,113],[126,142]],
+[[23,26],[31,36],[39,42],[54,55],[74,77],[80,81],[84,85],[88,89],[92,95],[114,115],[124,140]],
+[[23,26],[31,36],[39,42],[54,55],[74,77],[80,81],[84,85],[88,89],[92,95],[114,115],[124,140]],
+[[21,26],[29,34],[54,55],[72,73],[76,77],[80,89],[92,93],[96,97],[114,115],[124,138]],
+[[21,26],[29,34],[53,55],[72,73],[76,77],[80,89],[92,93],[96,97],[114,115],[124,138]],
+[[21,24],[29,34],[37,38],[52,53],[70,73],[76,79],[90,93],[96,99],[116,117],[126,136]],
+[[21,24],[29,34],[37,38],[51,53],[70,73],[76,79],[90,93],[96,99],[116,117],[126,136]],
+[[21,24],[29,32],[35,36],[52,52],[68,69],[72,75],[86,87],[94,97],[100,101],[116,117]],
+[[21,24],[29,32],[35,36],[52,52],[68,69],[72,75],[86,87],[94,97],[100,101],[116,117]],
+[[21,22],[27,30],[52,53],[66,71],[86,87],[98,103],[116,117]],
+[[21,22],[27,30],[51,53],[66,71],[86,87],[98,103],[116,117]],
+[[25,28],[50,50],[64,67],[86,87],[102,105],[118,119]],
+[[25,28],[49,50],[64,67],[86,87],[102,105],[118,119]],
+[[21,26],[49,50],[62,63],[86,87],[106,107],[118,119]],
+[[21,26],[49,50],[62,63],[86,87],[106,107],[118,119]],
+[[19,26],[49,50],[60,61],[86,87],[108,109],[118,119]],
+[[19,26],[49,51],[60,61],[86,87],[108,109],[118,119]],
+[[19,24],[48,48],[58,59],[86,87],[110,111],[120,121]],
+[[19,24],[47,48],[58,59],[86,87],[110,111],[120,121]],
+[[17,22],[47,48],[56,57],[86,87],[106,107],[112,113],[120,121]],
+[[17,22],[47,48],[56,57],[86,87],[106,107],[112,113],[120,121]],
+[[15,20],[47,48],[54,55],[66,81],[86,89],[92,97],[106,107],[114,115],[120,121]],
+[[15,20],[47,48],[54,55],[66,81],[86,89],[92,97],[106,107],[114,115],[120,121]],
+[[15,20],[47,48],[52,52],[62,65],[82,85],[88,89],[96,99],[106,107],[116,117],[120,121]],
+[[15,20],[47,48],[51,53],[62,65],[82,85],[88,89],[96,99],[106,107],[116,117],[120,121]],
+[[5,6],[13,18],[47,48],[51,52],[60,61],[86,89],[98,101],[106,107],[116,117],[120,121]],
+[[5,6],[13,18],[47,48],[51,53],[60,61],[86,89],[98,101],[106,107],[116,117],[120,121]],
+[[5,6],[11,16],[50,50],[58,59],[88,89],[98,103],[118,119]],
+[[5,6],[11,16],[49,51],[58,59],[88,89],[98,103],[118,119]],
+[[3,6],[9,14],[58,59],[90,91],[100,105]],
+[[3,6],[9,14],[58,59],[90,91],[100,105]],
+[[3,6],[9,14],[56,56],[90,91],[102,107]],
+[[3,6],[9,14],[56,57],[90,91],[102,107]],
+[[1,12],[56,57],[90,91],[102,107]],
+[[1,12],[56,57],[90,91],[102,107]],
+[[1,2],[4,10],[56,57],[90,91],[102,107]],
+[[1,2],[5,10],[56,57],[90,91],[102,107]],
+[[0,2],[5,10],[56,57],[90,90],[102,107]]
+];
+
+// undyne_hurt.png (192x195)
+const UNDYNE_HURT_PIXELS=[
+[[61,79]],
+[[60,80]],
+[[57,76],[83,90]],
+[[56,76],[83,90]],
+[[52,74],[79,96]],
+[[52,74],[79,96]],
+[[51,72],[80,100]],
+[[50,71],[81,100]],
+[[47,70],[75,77],[82,86],[88,98]],
+[[46,69],[75,78],[83,86],[89,98]],
+[[45,68],[73,79],[89,90],[92,96],[101,104]],
+[[44,67],[72,80],[89,90],[93,96],[101,104]],
+[[43,56],[62,66],[72,74],[88,90],[99,106]],
+[[42,55],[62,65],[72,74],[81,82],[87,90],[99,106]],
+[[42,55],[60,60],[86,90]],
+[[40,55],[58,61],[83,92],[97,98]],
+[[40,54],[60,61],[83,92]],
+[[38,53],[56,57],[60,61],[70,72],[77,80],[85,96]],
+[[38,53],[56,57],[61,61],[70,71],[76,80],[85,95]],
+[[36,53],[56,57],[62,63],[70,71],[75,82],[87,94],[117,122]],
+[[36,53],[56,57],[63,63],[71,71],[74,82],[87,93],[117,122]],
+[[36,53],[56,57],[64,65],[73,84],[87,92],[117,118],[121,122]],
+[[36,53],[56,58],[65,65],[72,84],[86,92],[117,118],[121,122]],
+[[34,53],[56,59],[66,67],[70,78],[85,92],[97,104],[115,116],[121,122]],
+[[34,53],[57,60],[67,67],[70,78],[84,92],[97,104],[115,116],[121,122]],
+[[34,51],[58,63],[70,71],[75,96],[103,106],[113,114],[121,122]],
+[[34,51],[58,63],[70,71],[75,96],[103,106],[113,114],[121,122]],
+[[32,51],[58,59],[64,67],[71,72],[75,80],[91,108],[111,112],[117,120]],
+[[32,51],[58,59],[65,67],[70,72],[75,79],[91,108],[111,112],[117,120]],
+[[32,49],[58,59],[70,71],[75,78],[83,84],[87,90],[95,108],[115,116],[119,120]],
+[[32,49],[58,59],[70,71],[75,77],[82,84],[87,90],[95,108],[115,116],[119,120]],
+[[32,47],[58,59],[70,71],[81,84],[87,90],[93,94],[99,104],[107,108],[111,114],[119,120],[191,191]],
+[[32,47],[58,59],[70,72],[81,84],[87,90],[93,94],[99,104],[107,108],[111,114],[119,120],[188,191]],
+[[32,33],[36,47],[58,59],[64,67],[70,71],[77,78],[81,84],[87,90],[93,96],[107,108],[119,120],[185,191]],
+[[32,33],[36,47],[58,59],[64,67],[70,71],[77,78],[81,84],[87,90],[93,96],[107,108],[119,120],[184,191]],
+[[32,33],[36,47],[58,63],[70,71],[77,78],[81,84],[87,90],[93,96],[99,102],[107,108],[119,120],[185,191]],
+[[32,33],[36,47],[58,63],[70,72],[77,78],[81,84],[87,90],[93,96],[99,102],[107,108],[119,120],[187,191]],
+[[36,37],[40,47],[60,61],[70,74],[77,78],[81,84],[87,90],[93,96],[99,102],[107,108],[111,114],[119,120],[191,191]],
+[[36,37],[40,47],[60,61],[71,74],[77,78],[81,84],[87,90],[93,96],[99,102],[107,108],[111,114],[119,120]],
+[[34,37],[40,47],[60,61],[66,67],[71,73],[77,78],[81,84],[87,90],[93,96],[99,102],[105,108],[115,116],[119,120]],
+[[34,37],[40,47],[60,61],[66,67],[71,74],[77,78],[81,84],[87,90],[93,96],[99,102],[105,108],[115,116],[119,120]],
+[[34,35],[40,41],[44,47],[60,61],[64,65],[70,74],[77,78],[81,84],[87,90],[93,96],[99,102],[105,108],[117,120]],
+[[34,35],[40,41],[44,47],[60,61],[64,65],[71,74],[77,77],[81,84],[87,90],[93,96],[99,102],[105,108],[117,120]],
+[[46,47],[60,61],[64,65],[73,76],[81,84],[87,90],[93,96],[99,100],[105,108],[111,112],[117,118]],
+[[46,47],[60,61],[64,65],[73,76],[81,84],[87,90],[93,96],[99,100],[105,108],[111,112],[117,118]],
+[[30,35],[60,65],[73,78],[81,84],[87,90],[93,96],[99,100],[103,106],[111,114],[117,118]],
+[[30,35],[60,65],[73,78],[81,84],[87,90],[93,96],[99,100],[103,106],[111,114],[117,118]],
+[[30,31],[36,43],[60,63],[75,80],[83,84],[87,90],[93,96],[101,106],[111,118]],
+[[30,31],[36,43],[60,63],[75,80],[83,84],[87,90],[93,96],[101,106],[111,118]],
+[[32,35],[44,47],[60,63],[75,82],[87,90],[93,96],[99,104],[111,116]],
+[[32,35],[44,47],[60,63],[75,82],[87,90],[93,96],[99,104],[111,116]],
+[[36,37],[48,53],[60,63],[77,80],[83,86],[93,94],[97,104],[113,116]],
+[[36,37],[48,53],[60,63],[77,80],[83,86],[93,94],[97,104],[113,116]],
+[[38,39],[54,55],[60,63],[79,82],[87,90],[95,102],[113,116]],
+[[38,39],[54,55],[60,63],[79,82],[87,90],[95,102],[113,116]],
+[[26,31],[40,41],[56,57],[62,63],[81,86],[91,94],[97,100],[113,114]],
+[[26,31],[40,41],[56,57],[62,63],[81,86],[91,94],[97,100],[113,114]],
+[[20,25],[32,43],[56,57],[83,90],[95,98]],
+[[20,25],[32,43],[56,57],[83,90],[95,98]],
+[[16,19],[58,59],[77,78],[89,96],[129,163]],
+[[16,19],[58,59],[77,78],[89,96],[129,163]],
+[[20,31],[60,61],[75,78],[99,100],[123,130],[164,173]],
+[[20,31],[60,61],[75,78],[99,100],[123,130],[164,173]],
+[[32,33],[62,63],[69,74],[79,80],[101,104],[174,175]],
+[[32,33],[62,63],[68,74],[79,80],[101,104],[174,175]],
+[[24,35],[64,70],[105,118],[145,156],[166,175]],
+[[24,35],[64,69],[105,118],[145,157],[166,175]],
+[[20,23],[64,69],[109,114],[158,165],[172,173]],
+[[20,23],[64,69],[109,114],[158,165],[172,173]],
+[[16,19],[66,71],[107,112],[166,169]],
+[[16,19],[66,71],[107,112],[166,169]],
+[[10,15],[70,75],[103,108],[148,156],[170,171]],
+[[10,15],[70,76],[103,108],[147,157],[170,171]],
+[[4,9],[77,77],[101,104],[153,165],[172,173]],
+[[4,9],[77,78],[101,104],[154,165],[172,173]],
+[[10,19],[75,82],[103,104],[159,161],[166,167],[174,175]],
+[[10,19],[75,82],[103,104],[160,161],[166,167],[174,175]],
+[[18,29],[73,74],[80,86],[103,106],[162,162],[168,169],[174,175]],
+[[18,29],[72,74],[81,86],[103,106],[162,163],[168,169],[174,175]],
+[[22,57],[71,71],[85,108],[164,164],[170,171],[174,175]],
+[[22,57],[70,72],[85,108],[164,165],[170,171],[174,175]],
+[[32,45],[58,69],[109,130],[166,166],[172,173]],
+[[32,45],[58,70],[109,130],[166,167],[172,173]],
+[[44,57],[66,68],[85,85],[91,92],[111,112],[131,140],[168,168],[172,173]],
+[[44,57],[66,67],[85,86],[91,92],[111,112],[131,140],[168,169],[172,173]],
+[[42,43],[56,65],[85,86],[113,118],[141,144],[170,171]],
+[[42,43],[56,65],[85,86],[113,118],[141,144],[170,171]],
+[[42,43],[58,64],[85,93],[117,134],[146,150],[170,171]],
+[[42,43],[58,63],[85,94],[117,134],[145,150],[170,171]],
+[[40,41],[58,63],[86,90],[92,96],[121,122],[135,138],[152,154],[172,172]],
+[[40,41],[58,63],[87,90],[93,96],[121,122],[135,138],[152,155],[172,173]],
+[[38,39],[58,63],[88,90],[94,96],[121,122],[140,142],[157,158],[172,173]],
+[[38,39],[58,63],[89,90],[95,96],[121,122],[139,142],[156,159],[172,173]],
+[[38,38],[58,63],[89,90],[121,122],[143,143],[145,148],[172,173]],
+[[34,37],[58,63],[89,90],[107,110],[121,122],[143,148],[160,161],[172,173]],
+[[34,34],[60,63],[81,81],[89,90],[107,110],[121,122],[145,147],[172,173]],
+[[32,33],[60,63],[68,82],[89,90],[103,110],[119,122],[129,130],[145,146],[149,153],[162,165],[172,173]],
+[[32,33],[60,63],[68,82],[89,90],[102,110],[119,122],[145,147],[150,152],[162,165],[172,173]],
+[[32,33],[36,41],[54,55],[60,63],[66,84],[89,90],[101,112],[119,120],[131,132],[145,148],[153,157],[164,165],[174,175]],
+[[32,33],[36,41],[54,55],[61,63],[66,84],[89,90],[101,112],[119,120],[131,132],[146,148],[154,157],[164,165],[174,175]],
+[[32,35],[38,43],[54,55],[62,63],[66,67],[71,86],[89,90],[99,112],[119,120],[131,132],[147,148],[158,159],[166,167],[174,175]],
+[[32,35],[38,43],[54,55],[62,64],[66,67],[70,86],[89,89],[99,112],[119,120],[131,132],[147,148],[158,159],[165,167],[174,175]],
+[[40,45],[48,53],[62,67],[71,88],[95,112],[117,120],[131,132],[147,148],[160,167],[174,175]],
+[[40,45],[48,53],[63,68],[70,88],[95,112],[117,120],[131,132],[147,148],[160,167],[174,175]],
+[[44,51],[64,110],[117,118],[131,132],[147,148],[164,169],[172,175]],
+[[44,51],[64,110],[117,118],[131,132],[147,149],[164,169],[172,175]],
+[[36,43],[48,51],[64,67],[75,108],[111,112],[115,118],[131,132],[147,151],[168,171],[174,175]],
+[[36,43],[48,51],[65,68],[75,108],[111,112],[115,118],[131,132],[148,150],[168,171],[174,175]],
+[[36,47],[66,72],[75,76],[79,100],[103,112],[115,116],[131,132],[150,150],[168,171],[174,175]],
+[[36,47],[66,72],[74,76],[78,100],[103,112],[115,116],[131,132],[149,151],[168,171],[174,175]],
+[[22,27],[44,51],[66,112],[115,116],[131,132],[149,153],[170,171],[174,175]],
+[[22,27],[44,51],[67,112],[115,116],[131,132],[149,153],[170,171],[174,175]],
+[[18,29],[48,49],[68,69],[79,104],[109,114],[133,134],[149,155],[170,175]],
+[[18,29],[48,49],[68,70],[79,104],[109,114],[133,134],[149,155],[170,175]],
+[[16,19],[22,31],[34,41],[68,74],[79,104],[107,114],[133,134],[150,155],[172,175]],
+[[16,19],[22,31],[34,41],[68,74],[79,104],[107,114],[133,134],[149,155],[172,175]],
+[[16,17],[26,45],[66,74],[79,100],[107,112],[133,134],[147,155],[172,173]],
+[[16,17],[26,45],[67,74],[79,100],[107,112],[133,134],[147,155],[172,173]],
+[[28,49],[71,74],[79,100],[107,112],[135,136],[141,150],[154,155],[172,173]],
+[[28,49],[70,74],[79,100],[107,112],[135,136],[141,150],[154,154],[172,173]],
+[[28,51],[64,65],[70,74],[79,96],[101,112],[135,144],[147,148],[172,173]],
+[[28,51],[64,65],[71,73],[79,96],[101,112],[135,144],[147,149],[172,173]],
+[[28,35],[38,51],[79,94],[101,104],[107,112],[145,151]],
+[[28,35],[38,51],[79,94],[101,104],[107,112],[145,151]],
+[[28,35],[40,51],[70,78],[83,84],[89,96],[99,100],[103,104],[107,108],[111,112],[135,153]],
+[[28,35],[40,51],[70,78],[83,84],[89,96],[99,100],[103,104],[107,108],[111,112],[135,152]],
+[[30,33],[40,41],[46,51],[70,73],[77,80],[83,90],[93,96],[99,104],[107,108],[111,112],[135,153],[172,173]],
+[[30,33],[40,41],[46,51],[70,74],[77,80],[83,90],[93,96],[99,104],[107,108],[111,112],[135,153],[172,173]],
+[[16,21],[30,33],[46,49],[52,53],[70,74],[77,80],[85,94],[99,102],[111,112],[137,153]],
+[[16,21],[30,33],[46,49],[52,53],[71,73],[77,80],[85,94],[99,102],[111,112],[137,152]],
+[[14,25],[30,33],[44,49],[64,67],[70,74],[79,80],[87,92],[95,96],[101,102],[107,108],[111,112],[141,144],[147,148],[154,155]],
+[[14,25],[30,33],[44,49],[64,67],[70,74],[79,80],[87,92],[95,96],[101,102],[107,108],[111,112],[141,144],[147,148],[154,155]],
+[[12,15],[20,27],[30,33],[42,47],[54,78],[89,90],[101,102],[111,112],[141,144],[154,155],[172,173]],
+[[12,15],[20,27],[30,33],[42,47],[54,78],[89,90],[101,102],[111,112],[141,144],[154,155],[172,173]],
+[[12,13],[22,35],[40,45],[50,69],[75,76],[103,108],[111,112],[137,151]],
+[[12,13],[22,35],[40,45],[50,69],[75,76],[103,108],[111,112],[137,151]],
+[[24,33],[42,43],[48,67],[77,80],[99,102],[107,112],[135,155]],
+[[24,33],[42,43],[48,67],[77,80],[99,102],[107,112],[135,155]],
+[[26,35],[38,41],[48,57],[62,65],[68,69],[81,98],[109,114],[135,155]],
+[[26,35],[38,41],[48,57],[62,65],[68,69],[81,98],[109,114],[135,155]],
+[[28,43],[48,53],[64,67],[70,71],[87,90],[107,114],[135,157]],
+[[28,43],[48,53],[64,67],[70,72],[87,90],[107,114],[135,157]],
+[[28,43],[46,51],[62,63],[68,69],[87,92],[105,112],[115,116],[135,138],[143,144],[149,157]],
+[[28,43],[46,51],[62,63],[68,69],[87,92],[105,112],[115,116],[135,138],[143,144],[149,157]],
+[[28,45],[62,63],[68,75],[85,86],[89,92],[97,100],[107,110],[115,116],[137,138],[149,155]],
+[[28,45],[62,63],[68,76],[85,86],[89,92],[97,100],[107,110],[115,116],[137,138],[149,155]],
+[[28,47],[60,61],[74,84],[93,96],[105,108],[117,118],[137,138],[149,153]],
+[[28,47],[60,61],[75,84],[93,96],[105,108],[117,118],[137,138],[149,153]],
+[[30,47],[60,61],[81,82],[85,86],[93,94],[97,104],[117,118],[137,138],[149,153]],
+[[30,47],[60,61],[81,82],[85,86],[93,94],[97,104],[117,118],[137,138],[150,153]],
+[[28,37],[42,47],[58,59],[79,86],[89,90],[93,100],[119,120],[137,138],[148,153]],
+[[28,37],[42,47],[58,59],[79,86],[89,90],[93,100],[119,120],[137,138],[147,153]],
+[[28,35],[38,39],[44,47],[58,59],[77,80],[83,92],[95,100],[119,120],[137,140],[147,153]],
+[[28,35],[38,39],[44,47],[58,59],[77,80],[83,92],[95,100],[119,120],[137,140],[147,152]],
+[[28,35],[38,41],[44,47],[56,57],[75,75],[78,86],[89,92],[95,100],[121,122],[137,140],[147,154]],
+[[28,35],[38,41],[44,47],[56,57],[75,76],[79,86],[89,92],[95,100],[121,122],[137,140],[147,155]],
+[[28,31],[34,41],[44,47],[56,57],[73,74],[79,84],[91,106],[121,122],[139,140],[146,156]],
+[[28,31],[34,41],[44,47],[56,57],[73,74],[79,84],[91,106],[121,122],[139,140],[145,157]],
+[[26,31],[34,39],[44,47],[56,57],[71,74],[77,80],[82,84],[91,92],[99,102],[105,108],[121,122],[139,140],[145,157]],
+[[26,31],[34,39],[44,47],[56,57],[70,73],[77,80],[83,84],[91,92],[99,102],[105,108],[121,122],[139,140],[145,157]],
+[[26,31],[34,39],[42,47],[54,57],[70,76],[78,80],[83,84],[91,92],[99,100],[103,106],[123,124],[139,142],[145,157]],
+[[26,31],[34,39],[42,47],[54,57],[70,76],[79,80],[83,84],[91,92],[99,100],[103,106],[123,124],[139,142],[145,157]],
+[[26,29],[34,39],[42,47],[54,56],[71,72],[91,92],[99,100],[105,106],[123,124],[138,153],[155,157]],
+[[26,29],[34,39],[42,47],[54,55],[71,71],[91,92],[99,100],[105,106],[123,124],[137,152],[156,157]],
+[[26,29],[34,37],[40,43],[54,55],[69,71],[91,92],[105,106],[123,124],[136,157]],
+[[26,29],[34,37],[40,43],[54,55],[68,72],[91,92],[105,106],[123,124],[135,157]],
+[[26,27],[32,37],[42,43],[53,55],[68,70],[91,92],[105,106],[123,124],[135,155]],
+[[26,27],[32,37],[42,43],[52,55],[68,69],[91,92],[105,106],[123,124],[135,155]],
+[[26,33],[36,37],[42,43],[52,55],[67,69],[91,92],[105,106],[109,110],[125,126],[135,155]],
+[[26,33],[36,37],[42,43],[52,55],[66,70],[91,92],[105,106],[109,110],[125,126],[135,155]],
+[[26,31],[36,37],[42,43],[52,54],[66,68],[73,85],[91,93],[97,101],[105,106],[109,110],[125,126],[135,153]],
+[[26,31],[36,37],[42,43],[52,53],[66,67],[73,86],[91,94],[97,102],[105,106],[109,110],[125,126],[135,152]],
+[[20,29],[36,37],[42,43],[52,53],[66,67],[72,74],[86,86],[88,88],[92,94],[97,100],[107,112],[115,116],[125,126],[135,153]],
+[[20,29],[36,37],[42,43],[50,53],[66,67],[70,74],[87,90],[93,94],[97,100],[107,112],[115,116],[125,126],[133,153]],
+[[19,29],[42,43],[50,53],[70,72],[93,94],[97,100],[107,112],[115,115],[125,126],[133,153]],
+[[10,11],[18,25],[28,29],[42,43],[50,53],[68,71],[93,94],[97,112],[125,126],[133,153]],
+[[10,11],[17,25],[28,29],[43,43],[50,53],[68,71],[93,94],[97,112],[125,126],[135,153]],
+[[10,11],[16,25],[28,29],[50,51],[68,69],[93,94],[103,112],[117,120],[125,126],[135,153]],
+[[9,11],[15,25],[28,29],[50,51],[68,69],[93,94],[103,112],[117,120],[125,126],[135,152]],
+[[8,11],[14,19],[22,25],[28,29],[50,51],[64,70],[93,96],[107,112],[119,120],[125,126],[135,150]],
+[[8,11],[14,19],[22,25],[28,29],[50,51],[64,69],[93,96],[107,112],[119,120],[125,126],[135,150]],
+[[8,11],[14,23],[28,29],[50,51],[62,65],[93,96],[111,114],[119,126],[135,150]],
+[[7,11],[14,23],[28,29],[50,52],[62,65],[93,96],[111,114],[119,126],[136,150]],
+[[6,23],[28,29],[50,63],[93,96],[113,116],[121,124],[137,150]],
+[[6,23],[28,29],[51,63],[93,96],[113,116],[121,124],[137,150]],
+[[6,15],[18,19],[22,23],[28,29],[56,59],[93,96],[111,112],[115,120],[137,146],[150,150]],
+[[5,15],[18,19],[22,23],[28,29],[56,59],[93,96],[111,112],[115,120],[137,146],[149,150]],
+[[4,23],[28,29],[56,57],[91,94],[115,118],[137,140],[143,146],[149,151]],
+[[3,23],[28,29],[56,57],[91,94],[115,118],[137,140],[143,146],[149,150]],
+[[2,13],[16,21],[28,29],[56,59],[91,94],[115,118],[137,140],[143,144],[149,150]],
+[[2,13],[16,21],[28,29],[56,59],[91,94],[115,118],[137,140],[143,144],[150,150]],
+[[2,5],[8,9],[14,19],[54,57],[89,94],[115,116],[139,140],[143,144]],
+[[1,5],[8,9],[14,19],[54,57],[89,94],[115,116],[139,140],[143,144]],
+[[0,7],[12,19],[54,55],[72,74],[87,92],[113,116],[139,140],[143,144]],
+[[0,7],[12,19],[54,55],[72,74],[87,92],[113,116],[140,140],[143,144]]
+];
+
+
+function drawPixelSprite(cx,cy,pixels,scale,flip){
+  ctx.save();
+  ctx.translate(cx,cy);
+  if(flip)ctx.scale(-1,1);
+  ctx.fillStyle=C.WHITE;
+  pixels.forEach((row,y)=>{
+    row.forEach(seg=>{
+      const x=seg[0], w=seg[1]-seg[0]+1;
+      ctx.fillRect(x*scale,y*scale,w*scale,scale);
+    });
+  });
+  ctx.restore();
+}
+
+function drawUndyne(px,py,sc=1){
+  const breathe=Math.sin(frame*0.05)*1.5;
+  const isBlink=undyne.blinkTimer<8;
+  let pixels=UNDYNE_IDLE_PIXELS;
+  if(undyne.pose==='visor')pixels=UNDYNE_VISOR_PIXELS;
+  else if(undyne.pose==='hurt')pixels=UNDYNE_HURT_PIXELS;
+
+  if(dodgeTimer>0){
+    const off=Math.sin(frame*0.8)*25;
+    ctx.save();ctx.globalAlpha=0.35;
+    drawPixelSprite(px-off*0.6,py+breathe,pixels,sc,false);
+    ctx.restore();
+    drawPixelSprite(px+off,py+breathe,pixels,sc,false);
+  }else{
+    drawPixelSprite(px,py+breathe,pixels,sc,false);
+  }
+}
+
+// ========== 灵魂绘制 ==========
+function drawSingleSoul(sx,sy,mode,highlight){
+  ctx.save();ctx.translate(sx,sy);
+  if(mode==='red')ctx.fillStyle=C.RED;
+  else if(mode==='green')ctx.fillStyle=C.GREEN;
+  else if(mode==='blue')ctx.fillStyle=C.BLUE;
+  const heartPixels=[
+    '....##....##....',
+    '...####..####...',
+    '..############..',
+    '..############..',
+    '..############..',
+    '...##########...',
+    '....########....',
+    '.....######.....',
+    '......####......',
+    '.......##.......'
+  ];
+  const offX=-8,offY=-5;
+  heartPixels.forEach((row,dy)=>{
+    for(let dx=0;dx<row.length;dx++){
+      if(row[dx]==='#')ctx.fillRect(offX+dx,offY+dy,1,1);
+    }
+  });
+  if(highlight){
+    ctx.fillStyle='rgba(255,255,255,0.6)';
+    ctx.fillRect(-4,-5,3,3);ctx.fillRect(-1,-6,2,2);
+  }
+  ctx.restore();
+}
+
+// ========== 箭头绘制 ==========
+// ========== 箭头像素精灵（从视频帧提取）==========
+const ARROW_PIX=[
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0]
+];
+
+function drawArrow(a){
+  ctx.save();ctx.translate(a.x,a.y);
+  let rot=0;
+  if(a.dir==='down')rot=Math.PI;
+  else if(a.dir==='left')rot=-Math.PI/2;
+  else if(a.dir==='right')rot=Math.PI/2;
+  else if(a.dir==='up')rot=0;
+  else if(a.dir==='center'){rot=Math.atan2(a.targetY-a.y,a.targetX-a.x);}
+  ctx.rotate(rot);
+  const col=a.color==='yellow'?C.YELLOW:C.WHITE;
+  const pix=ARROW_PIX;
+  const h=pix.length, w=pix[0].length;
+  for(let ry=0;ry<h;ry++){
+    for(let rx=0;rx<w;rx++){
+      if(pix[ry][rx]){
+        ctx.fillStyle=col;
+        ctx.fillRect(rx-Math.floor(w/2),ry-Math.floor(h/2),1,1);
+      }
+    }
+  }
+  ctx.restore();
+}
+
+// ========== 长矛绘制 ==========
+// ========== 长矛像素精灵（从视频帧提取）==========
+const SPEAR_TIP=[
+[0,0,1,1,1,1,0,0],
+[0,0,1,1,1,1,0,0],
+[0,0,1,1,1,1,0,0],
+[0,0,1,1,1,1,0,0],
+[1,1,1,1,1,1,1,1],
+[1,1,1,1,1,1,1,1],
+[1,1,1,1,1,1,1,1]
+];
+
+function drawSpear(a){
+  ctx.save();ctx.translate(a.x,a.y);
+  let rot=0;
+  if(a.dir==='down')rot=Math.PI;
+  else if(a.dir==='left')rot=-Math.PI/2;
+  else if(a.dir==='right')rot=Math.PI/2;
+  else if(a.dir==='center'){rot=Math.atan2(a.targetY-a.y,a.targetX-a.x);}
+  ctx.rotate(rot);
+  const w=a.w||5,h=a.h||35;
+  // Draw shaft
+  ctx.fillStyle=C.WHITE;
+  ctx.fillRect(-Math.floor(w/2),0,w,h);
+  // Draw tip using pixel sprite
+  const tip=SPEAR_TIP;
+  const th=tip.length, tw=tip[0].length;
+  for(let ry=0;ry<th;ry++){
+    for(let rx=0;rx<tw;rx++){
+      if(tip[ry][rx]){
+        ctx.fillRect(rx-Math.floor(tw/2),ry-th-1,1,1);
+      }
+    }
+  }
+  ctx.restore();
+}
+
+// ========== 粒子系统 ==========
+function spawnParticle(x,y,vx,vy,life,col,size,type='spark'){
+  particles.push({x,y,vx,vy,life,maxLife:life,col,size,type});
+}
+
+function updateParticles(){
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.x+=p.vx;p.y+=p.vy;
+    p.life--;
+    if(p.life<=0)particles.splice(i,1);
+  }
+}
+
+function drawParticles(){
+  particles.forEach(p=>{
+    ctx.globalAlpha=Math.max(0,p.life/p.maxLife);
+    ctx.fillStyle=p.col;
+    ctx.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size);
+  });
+  ctx.globalAlpha=1;
+}
+
+// ========== 攻击条（椭圆形，视频精确还原）==========
+function drawAttackBar(){
+  const barY=280;
+  const barW=400, barH=46;
+  const bx=W/2-barW/2, by=barY-barH/2;
+
+  // 攻击条背景（从视频提取）
+  if(ATTACK_BAR_IMG.complete){
+    ctx.drawImage(ATTACK_BAR_IMG, bx, by, barW, barH);
+  }else{
+    ctx.fillStyle=C.BLACK;
+    ctx.fillRect(bx,by,barW,barH);
+    ctx.strokeStyle=C.WHITE;
+    ctx.lineWidth=2;
+    ctx.strokeRect(bx,by,barW,barH);
+    ctx.fillStyle=C.GREEN;
+    ctx.fillRect(bx+barW*0.45,by+4,barW*0.1,barH-8);
+  }
+
+  // 移动光标（白色竖线）
+  ctx.fillStyle=C.WHITE;
+  ctx.fillRect(bx+attackBar.pos, by+4, 4, barH-8);
+}
+
+// ========== 攻击波次系统（基于视频分析）==========
+function spawnWave(t){
+  const w=t%16;
+  const cx=box.x, cy=box.y, cw=box.w, ch=box.h;
+  platforms=[];
+  let hasSpear=false, hasArrow=false;
+
+  switch(w){
+    case 0: // 绿色模式：四面白色箭头（慢速）
+      box.tw=150; box.th=150; box.tx=320; box.ty=300;
+      soul.mode='green';hasArrow=true;
+      for(let i=0;i<6;i++){
+        attacks.push({type:'arrow',x:cx-cw/2-30,y:cy-ch/2+20+i*25,dir:'right',speed:2,color:'white',damage:8});
+      }
+      break;
+    case 1: // 绿色模式：黄色反转箭头
+      box.tw=150; box.th=150; box.tx=320; box.ty=300;
+      soul.mode='green';hasArrow=true;
+      for(let i=0;i<5;i++){
+        attacks.push({type:'arrow',x:cx+cw/2+30,y:cy-ch/2+25+i*25,dir:'left',speed:3,color:'yellow',damage:8});
+      }
+      break;
+    case 2: // 红色模式：底部向上长矛
+      box.tw=200; box.th=180; box.tx=320; box.ty=300;
+      soul.mode='red';hasSpear=true;
+      for(let i=0;i<8;i++){
+        const h=30+Math.random()*20;
+        attacks.push({type:'spear',x:cx-cw/2+15+i*22,y:cy+ch/2+h,w:4,h:h,dir:'up',speed:0,color:'white',damage:8});
+      }
+      break;
+    case 3: // 绿色模式：大范围连射
+      box.tw=160; box.th=160; box.tx=320; box.ty=300;
+      soul.mode='green';hasArrow=true;
+      const dirs=['left','right','up','down'];
+      for(let i=0;i<12;i++){
+        const d=dirs[i%4];
+        let ax=cx, ay=cy;
+        if(d==='left'){ax=cx+cw/2+40;ay=cy-ch/2+15+(i%3)*40;}
+        else if(d==='right'){ax=cx-cw/2-40;ay=cy-ch/2+15+(i%3)*40;}
+        else if(d==='up'){ax=cx-cw/2+20+(i%3)*40;ay=cy+ch/2+40;}
+        else{ax=cx-cw/2+20+(i%3)*40;ay=cy-ch/2-40;}
+        attacks.push({type:'arrow',x:ax,y:ay,dir:d,speed:2.5,color:'white',damage:8});
+      }
+      break;
+    case 4: // 红色模式：环形长矛收束
+      box.tw=250; box.th=200; box.tx=320; box.ty=300;
+      soul.mode='red';hasSpear=true;
+      for(let i=0;i<7;i++){
+        const angle=(i/7)*Math.PI*2;
+        const dist=180;
+        const sx=cx+Math.cos(angle)*dist;
+        const sy=cy+Math.sin(angle)*dist;
+        const aim=Math.atan2(cy-sy,cx-sx);
+        attacks.push({type:'spear',x:sx,y:sy,w:5,h:40,dir:'center',speed:0,targetX:cx,targetY:cy,angle:aim,damage:8});
+      }
+      break;
+    case 5: // 绿色模式：环形箭头
+      box.tw=150; box.th=150; box.tx=320; box.ty=300;
+      soul.mode='green';hasArrow=true;
+      for(let i=0;i<8;i++){
+        const angle=(i/8)*Math.PI*2;
+        const dist=130;
+        attacks.push({type:'arrow',x:cx+Math.cos(angle)*dist,y:cy+Math.sin(angle)*dist,dir:'center',speed:0,targetX:cx,targetY:cy,angle:angle,color:'white',damage:8});
+      }
+      break;
+    case 6: // 红色模式：六矛连环
+      box.tw=200; box.th=180; box.tx=320; box.ty=300;
+      soul.mode='red';hasSpear=true;
+      for(let i=0;i<6;i++){
+        attacks.push({type:'spear',x:cx-cw/2-10,y:cy-ch/2+20+i*25,w:4,h:35,dir:'right',speed:3+i*0.3,color:'white',damage:8});
+      }
+      break;
+    case 7: // 红色模式：八矛旋转环
+      box.tw=220; box.th=200; box.tx=320; box.ty=300;
+      soul.mode='red';hasSpear=true;
+      for(let i=0;i<8;i++){
+        const angle=(i/8)*Math.PI*2+frame*0.02;
+        const dist=150;
+        attacks.push({type:'spear',x:cx+Math.cos(angle)*dist,y:cy+Math.sin(angle)*dist,w:5,h:35,dir:'center',speed:0,targetX:cx,targetY:cy,angle:angle+Math.PI,color:'white',damage:8});
+      }
+      break;
+    case 8: // 绿色模式：极速单矛瞄准
+      box.tw=150; box.th=150; box.tx=320; box.ty=300;
+      soul.mode='green';hasArrow=true;
+      attacks.push({type:'arrow',x:cx+cw/2+50,y:cy,dir:'left',speed:6,color:'white',damage:8});
+      attacks.push({type:'arrow',x:cx-cw/2-50,y:cy-30,dir:'right',speed:6,color:'white',damage:8});
+      attacks.push({type:'arrow',x:cx,y:cy+ch/2+50,dir:'up',speed:6,color:'white',damage:8});
+      break;
+    case 9: // 红色模式：缩板加速三列矛
+      box.tw=180; box.th=140; box.tx=320; box.ty=300;
+      soul.mode='red';hasSpear=true;
+      for(let i=0;i<3;i++){
+        for(let j=0;j<5;j++){
+          attacks.push({type:'spear',x:cx-cw/2-20,y:cy-ch/2+20+j*25,w:4,h:30,dir:'right',speed:2+i,color:'white',damage:8});
+        }
+      }
+      break;
+    case 10: // 绿色模式：混合箭头
+      box.tw=150; box.th=150; box.tx=320; box.ty=300;
+      soul.mode='green';hasArrow=true;
+      for(let i=0;i<4;i++){
+        attacks.push({type:'arrow',x:cx+cw/2+30,y:cy-ch/2+20+i*30,dir:'left',speed:2,color:'white',damage:8});
+        attacks.push({type:'arrow',x:cx-cw/2-30,y:cy-ch/2+35+i*30,dir:'right',speed:2,color:'yellow',damage:8});
+      }
+      break;
+    case 11: // 红色模式：终极长矛暴雨
+      box.tw=260; box.th=200; box.tx=320; box.ty=300;
+      soul.mode='red';hasSpear=true;
+      for(let i=0;i<15;i++){
+        const angle=Math.random()*Math.PI*2;
+        const dist=200+Math.random()*50;
+        attacks.push({type:'spear',x:cx+Math.cos(angle)*dist,y:cy+Math.sin(angle)*dist,w:4,h:30,dir:'center',speed:0,targetX:cx,targetY:cy,angle:angle+Math.PI,color:'white',damage:8});
+      }
+      break;
+    case 12: // 绿色模式：上下箭头
+      box.tw=150; box.th=150; box.tx=320; box.ty=300;
+      soul.mode='green';hasArrow=true;
+      for(let i=0;i<5;i++){
+        attacks.push({type:'arrow',x:cx-40+i*20,y:cy-ch/2-30,dir:'down',speed:2.5,color:'white',damage:8});
+        attacks.push({type:'arrow',x:cx-30+i*20,y:cy+ch/2+30,dir:'up',speed:2.5,color:'white',damage:8});
+      }
+      break;
+    case 13: // 红色模式：左右长矛
+      box.tw=200; box.th=180; box.tx=320; box.ty=300;
+      soul.mode='red';hasSpear=true;
+      for(let i=0;i<6;i++){
+        attacks.push({type:'spear',x:cx-cw/2-30,y:cy-ch/2+20+i*25,w:4,h:35,dir:'right',speed:3,color:'white',damage:8});
+        attacks.push({type:'spear',x:cx+cw/2+30,y:cy-ch/2+20+i*25,w:4,h:35,dir:'left',speed:3,color:'white',damage:8});
+      }
+      break;
+    case 14: // 绿色模式：四面急射
+      box.tw=150; box.th=150; box.tx=320; box.ty=300;
+      soul.mode='green';hasArrow=true;
+      for(let i=0;i<8;i++){
+        attacks.push({type:'arrow',x:cx+cw/2+20,y:cy-ch/2+10+i*18,dir:'left',speed:4,color:'white',damage:8});
+      }
+      break;
+    case 15: // 红色模式：旋转扩散
+      box.tw=240; box.th=200; box.tx=320; box.ty=300;
+      soul.mode='red';hasSpear=true;
+      for(let i=0;i<12;i++){
+        const angle=(i/12)*Math.PI*2;
+        const dist=50;
+        attacks.push({type:'spear',x:cx+Math.cos(angle)*dist,y:cy+Math.sin(angle)*dist,w:4,h:30,dir:'center',speed:0,targetX:cx+Math.cos(angle)*200,targetY:cy+Math.sin(angle)*200,angle:angle,color:'white',damage:8});
+      }
+      break;
+  }
+  if(hasArrow)playSFX('spear');
+  if(hasSpear)playSFX('spear');
+}
+
+function updateAttacks(){
+  const cx=box.x, cy=box.y, cw=box.w, ch=box.h;
+  for(let i=attacks.length-1;i>=0;i--){
+    const a=attacks[i];
+    if(a.type==='arrow'){
+      if(a.dir==='right')a.x+=a.speed;
+      else if(a.dir==='left')a.x-=a.speed;
+      else if(a.dir==='down')a.y+=a.speed;
+      else if(a.dir==='up')a.y-=a.speed;
+      else if(a.dir==='center'){
+        a.x+=Math.cos(a.angle)*a.speed;
+        a.y+=Math.sin(a.angle)*a.speed;
+      }
+      if(Math.abs(a.x-cx)>350||Math.abs(a.y-cy)>350)attacks.splice(i,1);
+    }else if(a.type==='spear'){
+      if(a.dir==='right')a.x+=a.speed;
+      else if(a.dir==='left')a.x-=a.speed;
+      else if(a.dir==='up')a.y-=a.speed;
+      else if(a.dir==='down')a.y+=a.speed;
+      else if(a.dir==='center'){
+        a.x+=Math.cos(a.angle)*a.speed;
+        a.y+=Math.sin(a.angle)*a.speed;
+      }
+      if(Math.abs(a.x-cx)>350||Math.abs(a.y-cy)>350)attacks.splice(i,1);
+    }
+  }
+}
+
+function drawAttacks(){
+  attacks.forEach(a=>{
+    if(a.type==='arrow')drawArrow(a);
+    else if(a.type==='spear')drawSpear(a);
+  });
+}
+
+// ========== 碰撞检测 ==========
+function checkHits(){
+  if(soul.inv>0)return;
+  const sr=6;
+  for(let i=attacks.length-1;i>=0;i--){
+    const a=attacks[i];
+    if(a.type==='arrow'){
+      const ar=8;
+      if(soul.x+sr>a.x-ar&&soul.x-sr<a.x+ar&&soul.y+sr>a.y-ar&&soul.y-sr<a.y+ar){
+        if(soul.mode==='green'){
+          const blockDir=getShieldDir();
+          let arrowDir=a.dir;
+          if(arrowDir==='center'){
+            const dx=soul.x-a.x, dy=soul.y-a.y;
+            arrowDir=Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up');
+          }
+          if(blockDir===arrowDir){playSFX('block');a.x=-9999;continue;}
+        }
+        takeDamage(a.damage||8);
+      }
+    }else if(a.type==='spear'){
+      let rx,ry,rw,rh;
+      if(a.dir==='left'||a.dir==='right'){rx=a.x-4;ry=a.y-4;rw=(a.w||40)+8;rh=8;}
+      else{rx=a.x-4;ry=a.y-4;rw=8;rh=(a.h||40)+8;}
+      if(soul.x+sr>rx&&soul.x-sr<rx+rw&&soul.y+sr>ry&&soul.y-sr<ry+rh){
+        takeDamage(a.damage||8);
+      }
+    }
+  }
+}
+
+function getShieldDir(){
+  if(keys['arrowleft'])return'left';
+  if(keys['arrowright'])return'right';
+  if(keys['arrowup'])return'up';
+  if(keys['arrowdown'])return'down';
+  return'none';
+}
+
+function takeDamage(dmg){
+  if(soul.inv>0)return;
+  hp=Math.max(0,hp-dmg);
+  soul.inv=90;
+  playSFX('hit');
+  // 受伤粒子
+  for(let i=0;i<12;i++){
+    const a=Math.random()*Math.PI*2;
+    const sp=1+Math.random()*4;
+    spawnParticle(soul.x,soul.y,Math.cos(a)*sp,Math.sin(a)*sp,40,C.WHITE,2+Math.random()*3,'spark');
+  }
+  if(hp<=0){
+    state=ST.DEAD;
+    deadTimer=0;
+  }
+}
+
+// ========== 对话数据 ==========
+const DIALOGS=[
+{hasFace:true,side:'none',text:"* ...heh... 'It's nothing'...",pose:'idle'},
+{hasFace:false,side:'none',text:"* No... s-somehow, with just\n  one hit...",pose:'idle'},
+{hasFace:false,side:'right',text:"* I'm already...\n  Already...",pose:'idle'},
+{hasFace:false,side:'right',text:"* D... damn it....",pose:'hurt'},
+{hasFace:false,side:'right',text:"* Papyrus... Alphys...\n  ASGORE...",pose:'hurt'},
+{hasFace:false,side:'right',text:"* Just like that, I...\n  I've failed you.",pose:'hurt'},
+{hasFace:false,side:'right',text:"* ... No... My body...\n  It feels like it's\n  splitting apart.",pose:'idle'},
+{hasFace:false,side:'right',text:"* Like any instant...\n  I'll scatter into\n  a million pieces.",pose:'idle'},
+{hasFace:false,side:'right',text:"* But... Deep, deep in\n  my soul. There's a\n  burning feeling...",pose:'idle'},
+{hasFace:false,side:'right',text:"* A burning feeling\n  that WON'T let me die.",pose:'visor'},
+{hasFace:false,side:'right',text:"* This isn't just about\n  monsters anymore, is it?",pose:'idle'},
+{hasFace:false,side:'right',text:"* If you get past me,\n  you'll... You'll destroy\n  them all, won't you?",pose:'idle'},
+{hasFace:false,side:'right',text:"* Monsters... Humans...\n  Everyone...",pose:'idle'},
+{hasFace:false,side:'right',text:"* Everyone's hopes.\n  Everyone's dreams.\n  Vanquished in an instant.",pose:'hurt'},
+{hasFace:false,side:'right',text:"* But I WON'T let you\n  do that.",pose:'visor'},
+{hasFace:false,side:'right',text:"* Right now, everyone\n  in the world...",pose:'idle'},
+{hasFace:false,side:'right',text:"* I can feel their hearts\n  beating as one.",pose:'idle'},
+{hasFace:false,side:'right',text:"* And we all have\n  ONE goal.",pose:'visor'},
+{hasFace:false,side:'right',text:"* To defeat YOU.",pose:'visor'},
+{hasFace:false,side:'right',text:"* Human. No, WHATEVER\n  you are.",pose:'hurt'},
+{hasFace:false,side:'right',text:"* For the sake of the\n  whole world...",pose:'visor'},
+{hasFace:false,side:'right',text:"* I, UNDYNE, will\n  strike you down!",pose:'visor'},
+];
+
+function showDialog(idx){
+  if(idx>=DIALOGS.length)return;
+  const d=DIALOGS[idx];
+  dialog.full=d.text; dialog.text=''; dialog.idx=0; dialog.timer=0;
+  dialog.show=true; dialog.hasFace=d.hasFace; dialog.side=d.side;
+  undyne.pose=d.pose; undyne.dialogIdx=idx+1;
+  state=ST.DIALOGUE;
+}
+
+function drawDialog(){
+  if(!dialog.show)return;
+  const isBattle=(state===ST.BRED||state===ST.BGREEN);
+  const dy=isBattle?20:280;
+  const ty=isBattle?50:310;
+  // 主对话框
+  ctx.fillStyle=C.BLACK;
+  ctx.fillRect(40,dy,560,100);
+  ctx.strokeStyle=C.WHITE;
+  ctx.lineWidth=3;
+  ctx.strokeRect(40,dy,560,100);
+
+  ctx.fillStyle=C.WHITE;
+  ctx.font='16px "Courier New",SimSun,monospace';
+  const lines=dialog.text.split('\n');
+  lines.forEach((line,i)=>{
+    ctx.fillText(line,60,ty+i*22);
+  });
+
+  // 打字效果
+  dialog.timer++;
+  if(dialog.timer%4===0&&dialog.idx<dialog.full.length){
+    dialog.idx++;
+    dialog.text=dialog.full.substring(0,dialog.idx);
+    if(dialog.idx%2===0)playSFX('type');
+  }
+}
+
+// ========== UI绘制 ==========
+function drawUI(){
+  // 玩家信息
+  ctx.fillStyle=C.WHITE;
+  ctx.font='bold 18px "Courier New",SimSun,monospace';
+  ctx.fillText('PAPYRUS',40,420);
+  ctx.fillText('LV 10',160,420);
+  ctx.fillText('HP',230,420);
+
+  // HP条
+  const hpW=120, hpH=18;
+  ctx.fillStyle=C.RED;
+  ctx.fillRect(260,406,hpW,hpH);
+  const curHpW=(hp/maxHp)*hpW;
+  ctx.fillStyle=C.YELLOW;
+  ctx.fillRect(260,406,curHpW,hpH);
+  ctx.strokeStyle=C.WHITE;
+  ctx.lineWidth=2;
+  ctx.strokeRect(260,406,hpW,hpH);
+
+  ctx.fillStyle=C.WHITE;
+  ctx.font='14px "Courier New",SimSun,monospace';
+  ctx.fillText(hp+' / '+maxHp,400,420);
+
+  // 菜单按钮
+  const btnW=120, btnH=36, startX=45, gap=20;
+  MENU_ITEMS.forEach((item,i)=>{
+    const bx=startX+i*(btnW+gap);
+    const by=440;
+    ctx.fillStyle=menuIdx===i?C.YELLOW:C.BLACK;
+    ctx.fillRect(bx,by,btnW,btnH);
+    ctx.strokeStyle=C.ORANGE;
+    ctx.lineWidth=3;
+    ctx.strokeRect(bx,by,btnW,btnH);
+    ctx.fillStyle=menuIdx===i?C.BLACK:C.WHITE;
+    ctx.font='bold 18px "Courier New",SimSun,monospace';
+    ctx.fillText(item,bx+30,by+25);
+  });
+}
+
+// ========== 战斗框绘制 ==========
+function drawBox(){
+  // 弹性动画
+  box.w+=(box.tw-box.w)*0.15;
+  box.h+=(box.th-box.h)*0.15;
+  box.x+=(box.tx-box.x)*0.15;
+  box.y+=(box.ty-box.y)*0.15;
+
+  const x=box.x-box.w/2, y=box.y-box.h/2, w=box.w, h=box.h;
+  ctx.fillStyle=C.BLACK;
+  ctx.fillRect(x,y,w,h);
+  ctx.strokeStyle='#787a77';
+  ctx.lineWidth=4;
+  ctx.strokeRect(x,y,w,h);
+
+  // 绿色模式：盾牌（像素长矛形状，从视频提取）
+  if(soul.mode==='green'){
+    const shieldDir=getShieldDir();
+    if(shieldDir!=='none'){
+      ctx.fillStyle=C.GREEN;
+      const shW=7, shH=24;
+      let sx=soul.x, sy=soul.y;
+      if(shieldDir==='left'){sx-=shW+8; sy-=Math.floor(shH/2);}
+      else if(shieldDir==='right'){sx+=8; sy-=Math.floor(shH/2);}
+      else if(shieldDir==='up'){sx-=Math.floor(shW/2); sy-=shH+8;}
+      else if(shieldDir==='down'){sx-=Math.floor(shW/2); sy+=8;}
+      ctx.fillRect(sx,sy,shW,shH);
+      // 矛尖
+      const tipW=8, tipH=7;
+      if(shieldDir==='left')ctx.fillRect(sx-tipW,sy+Math.floor((shH-tipH)/2),tipW,tipH);
+      else if(shieldDir==='right')ctx.fillRect(sx+shW,sy+Math.floor((shH-tipH)/2),tipW,tipH);
+      else if(shieldDir==='up')ctx.fillRect(sx+Math.floor((shW-tipW)/2),sy-tipH,tipW,tipH);
+      else if(shieldDir==='down')ctx.fillRect(sx+Math.floor((shW-tipW)/2),sy+shH,tipW,tipH);
+    }
+  }
+}
+
+// ========== 按键处理 ==========
+function handleKey(k){
+  if(state===ST.DIALOGUE){
+    if(k==='z'||k==='enter'||k===' '){
+      if(dialog.idx<dialog.full.length){
+        dialog.idx=dialog.full.length;
+        dialog.text=dialog.full;
+      }else{
+        const next=undyne.dialogIdx;
+        if(next>=22){state=ST.MENU;return;}
+        showDialog(next);
+      }
+    }
+    return;
+  }
+
+  if(state===ST.MENU){
+    if(k==='arrowleft'){menuIdx=(menuIdx+3)%4;}
+    else if(k==='arrowright'){menuIdx=(menuIdx+1)%4;}
+    else if(k==='z'||k==='enter'||k===' '){
+      if(menuIdx===0){state=ST.ATTACK;attackBar={pos:0,dir:1,speed:12};}
+      else if(menuIdx===2){state=ST.ITEMS;selectedItem=0;}
+      else if(menuIdx===1){state=ST.ACT;actIdx=0;}
+      else if(menuIdx===3){state=ST.SPARE;spareIdx=0;}
+    }
+    return;
+  }
+
+  if(state===ST.ATTACK){
+    if(k==='z'||k==='enter'||k===' '){
+      const hitCenter=200;
+      const dist=Math.abs(attackBar.pos-hitCenter);
+      if(dist<35){
+        if(Math.random()<0.8){
+          showDodge=true;dodgeTimer=60;
+          for(let i=0;i<12;i++){
+            const a=Math.random()*Math.PI*2;
+            const sp=1+Math.random()*3;
+            spawnParticle(box.x-40,box.y-10,Math.cos(a)*sp,Math.sin(a)*sp,25,C.WHITE,2,'spark');
+          }
+        }else{
+          const baseDmg=Math.floor(Math.random()*67)+600;
+          const dmg=baseDmg*21;
+          undyne.hp=Math.max(0,undyne.hp-dmg);
+          damageNumber={val:dmg,x:box.x,y:box.y-30,life:90,dy:-2};
+          for(let i=0;i<20;i++){
+            const a=Math.random()*Math.PI*2;
+            const sp=2+Math.random()*5;
+            spawnParticle(box.x,box.y-20,Math.cos(a)*sp,Math.sin(a)*sp,30,C.WHITE,3,'spark');
+          }
+          if(undyne.hp<=0){
+            undyneDefeated=true;
+            state=ST.ENDING;
+            endingTimer=0;
+            return;
+          }
+        }
+      }else{
+        showMiss=true;missTimer=60;
+      }
+
+      const waveType=turn%16;
+      if(waveType%2===0)state=ST.BGREEN;
+      else state=ST.BRED;
+      waveTime=0;
+      soul.x=box.x;soul.y=box.y;
+      if(state===ST.BGREEN){soul.mode='green';}
+      else{soul.mode='red';}
+      box.tw=200;box.th=180;box.tx=320;box.ty=300;
+      attacks=[];platforms=[];
+    }
+    return;
+  }
+}
+
+// ========== 主循环 ==========
+function update(){
+  frame++;
+  undyne.blinkTimer--;
+  if(undyne.blinkTimer<=0)undyne.blinkTimer=40+Math.random()*120;
+
+  if(state===ST.INTRO){
+    showDialog(0);
+  }else if(state===ST.BRED||state===ST.BGREEN){
+    waveTime++;
+    if(waveTime===1)spawnWave(turn);
+    if(waveTime>500||attacks.length===0&&waveTime>180){
+      turn++;
+      state=ST.MENU;
+      attacks=[];
+      soul.x=320;soul.y=300;
+      box.tw=200;box.th=180;box.tx=320;box.ty=300;
+    }
+
+    updateAttacks();
+    updateParticles();
+    checkHits();
+
+    // 灵魂移动
+    const speed=3.5;
+    if(soul.mode==='red'){
+      if(keys['arrowleft'])soul.x-=speed;
+      if(keys['arrowright'])soul.x+=speed;
+      if(keys['arrowup'])soul.y-=speed;
+      if(keys['arrowdown'])soul.y+=speed;
+    }else if(soul.mode==='green'){
+      // 绿心不能移动，只能举盾
+    }
+
+    // 限制在框内
+    const bx=box.x-box.w/2+8, by=box.y-box.h/2+8;
+    const bw=box.w-16, bh=box.h-16;
+    soul.x=Math.max(bx,Math.min(bx+bw,soul.x));
+    soul.y=Math.max(by,Math.min(by+bh,soul.y));
+
+    if(soul.inv>0)soul.inv--;
+  }else if(state===ST.ATTACK){
+    attackBar.pos+=attackBar.speed*attackBar.dir;
+    if(attackBar.pos>380||attackBar.pos<0)attackBar.dir*=-1;
+  }else if(state===ST.DEAD){
+    deadTimer++;
+    if(deadTimer>180&&(keys['z']||keys['enter']||keys[' ']))location.reload();
+  }else if(state===ST.ENDING){
+    endingTimer++;
+    if(endingTimer>60&&endingTimer<180)undyne.alpha=Math.max(0,1-(endingTimer-60)/120);
+    if(damageNumber){damageNumber.y+=damageNumber.dy;damageNumber.life--;if(damageNumber.life<=0)damageNumber=null;}
+    if(endingTimer>300&&(keys['z']||keys['enter']||keys[' ']))location.reload();
+  }
+
+  if(missTimer>0){missTimer--;if(missTimer===0)showMiss=false;}
+  if(dodgeTimer>0){dodgeTimer--;if(dodgeTimer===0)showDodge=false;}
+}
+
+function draw(){
+  ctx.fillStyle=C.BLACK;
+  ctx.fillRect(0,0,W,H);
+
+  ctx.save();
+
+  // 绘制Undyne
+  ctx.globalAlpha=undyne.alpha;
+  drawUndyne(320,30,0.6);
+  ctx.globalAlpha=1;
+
+  // Undyne HP条
+  if(state===ST.ATTACK||state===ST.BRED||state===ST.BGREEN||state===ST.MENU){
+    const ubW=200, ubH=16;
+    const ubx=W/2-ubW/2, uby=230;
+    ctx.fillStyle=C.DGRAY;
+    ctx.fillRect(ubx,uby,ubW,ubH);
+    const curUW=(undyne.hp/undyne.maxHp)*ubW;
+    ctx.fillStyle=C.GREEN;
+    ctx.fillRect(ubx,uby,curUW,ubH);
+    ctx.strokeStyle=C.WHITE;
+    ctx.lineWidth=2;
+    ctx.strokeRect(ubx,uby,ubW,ubH);
+  }
+
+  // 伤害数字
+  if(damageNumber&&damageNumber.life>0){
+    ctx.globalAlpha=Math.min(1,damageNumber.life/30);
+    ctx.fillStyle=C.WHITE;ctx.font='bold 32px "Courier New",monospace';
+    ctx.fillText(damageNumber.val,damageNumber.x-30,damageNumber.y);
+    ctx.globalAlpha=1;
+  }
+
+  // 战斗框
+  if(state===ST.BRED||state===ST.BGREEN){
+    drawBox();
+    drawAttacks();
+    drawSingleSoul(soul.x,soul.y,soul.mode,true);
+    drawParticles();
+  }
+
+  // 攻击条
+  if(state===ST.ATTACK){
+    drawAttackBar();
+  }
+
+  // MISS / DODGE
+  if(showMiss){
+    ctx.fillStyle=C.WHITE;ctx.font='bold 42px "Courier New",monospace';
+    ctx.fillText('MISS',W/2-55,H/2-35);
+  }
+  if(showDodge){
+    ctx.fillStyle=C.YELLOW;ctx.font='bold 42px "Courier New",monospace';
+    ctx.fillText('DODGE',W/2-75,H/2-35);
+  }
+
+  drawDialog();
+
+  if(state!==ST.DEAD&&state!==ST.ENDING)drawUI();
+
+  // 死亡画面
+  if(state===ST.DEAD){
+    drawParticles();
+    ctx.globalAlpha=1;
+    ctx.fillStyle=C.RED;ctx.font='bold 22px "Courier New",SimSun,monospace';
+    ctx.fillText('你丧失了决心...',W/2-95,H/2-25);
+    if(deadTimer>120){
+      ctx.fillStyle=C.WHITE;ctx.font='14px "Courier New",SimSun,monospace';
+      ctx.fillText('按 Z 或 Enter 重新开始',W/2-95,H/2+20);
+    }
+  }else if(state===ST.ENDING){
+    if(damageNumber&&damageNumber.life>0){
+      ctx.globalAlpha=Math.min(1,damageNumber.life/30);
+      ctx.fillStyle=C.WHITE;ctx.font='bold 32px "Courier New",monospace';
+      ctx.fillText(damageNumber.val,damageNumber.x-25,damageNumber.y);
+      ctx.globalAlpha=1;
+    }
+    if(endingTimer>120){
+      ctx.fillStyle=C.WHITE;ctx.font='bold 22px "Courier New",SimSun,monospace';
+      ctx.fillText('Undyne被击败了...',W/2-95,H/2-25);
+      if(endingTimer>180){
+        ctx.font='14px "Courier New",SimSun,monospace';
+        ctx.fillText('她的盔甲碎裂，倒在地上。',W/2-110,H/2+10);
+      }
+      if(endingTimer>300){
+        ctx.fillStyle=C.WHITE;ctx.font='14px "Courier New",SimSun,monospace';
+        ctx.fillText('按 Z 或 Enter 重新开始',W/2-95,H/2+50);
+      }
+    }
+  }
+
+  ctx.restore();
+}
+
+function loop(){update();draw();requestAnimationFrame(loop);}
+loop();
+</script>
+</body>
+</html>
