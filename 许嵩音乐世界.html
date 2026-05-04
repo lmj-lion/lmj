@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>许嵩音乐世界 - Vae's Music World</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f0f1a;--secondary:#1a1a2e;--accent:#9b59b6;--text:#e0e0e0;--text-dim:#888}
+body{font-family:'Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+#top-nav{position:sticky;top:0;z-index:100;background:rgba(15,15,40,.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(155,89,182,.3);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.site-title{font-size:22px;font-weight:bold;color:var(--accent);letter-spacing:2px}
+.site-subtitle{font-size:12px;color:var(--text-dim);margin-top:2px}
+#filter-bar{background:var(--secondary);padding:16px 24px;border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:61px;z-index:99}
+.filter-row{display:flex;gap:10px;flex-wrap:wrap;max-width:1400px;margin:0 auto}
+.filter-btn{padding:7px 18px;border:1px solid rgba(255,255,255,.2);border-radius:20px;background:transparent;color:var(--text-dim);cursor:pointer;font-size:14px;transition:all .2s;font-family:inherit}
+.filter-btn:hover,.filter-btn.active{border-color:var(--accent);color:#fff;background:var(--accent)}
+.filter-sep{width:1px;background:rgba(255,255,255,.1);margin:0 4px}
+#main{display:flex;max-width:1400px;margin:0 auto;padding:20px;gap:20px}
+#sidebar{width:220px;flex-shrink:0;position:sticky;top:130px;height:fit-content;max-height:calc(100vh-160px);overflow-y:auto}
+.sidebar-title{font-size:14px;color:var(--text-dim);padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.06);letter-spacing:1px}
+.album-nav{display:flex;flex-direction:column}
+.album-item{display:flex;align-items:center;padding:10px 16px;cursor:pointer;transition:all .2s;border-left:3px solid transparent;font-size:14px}
+.album-item:hover{background:rgba(155,89,182,.1);color:var(--accent)}
+.album-item.active{background:rgba(155,89,182,.15);border-left-color:var(--accent);color:var(--accent)}
+.album-emoji{margin-right:10px;font-size:18px}
+.album-name{flex:1}
+.album-year{font-size:12px;color:var(--text-dim);margin-left:8px}
+#song-grid{flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.song-card{background:var(--secondary);border-radius:12px;padding:20px;cursor:pointer;transition:all .3s;border:1px solid rgba(255,255,255,.05);position:relative;overflow:hidden}
+.song-card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 8px 30px rgba(155,89,182,.2)}
+.song-card.hidden{display:none}
+.card-album{font-size:11px;color:var(--accent);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.card-title{font-size:16px;font-weight:600;margin-bottom:12px;line-height:1.4}
+.card-tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{padding:4px 10px;background:rgba(155,89,182,.15);border-radius:12px;font-size:11px;color:var(--accent)}
+#lyrics-modal{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);justify-content:center;align-items:center;padding:20px}
+.modal-box{background:var(--secondary);border-radius:16px;max-width:700px;width:100%;max-height:85vh;overflow-y:auto;padding:28px;position:relative;border:1px solid rgba(155,89,182,.3)}
+.modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.modal-song-title{font-size:24px;font-weight:bold;color:var(--accent);margin-bottom:4px}
+.modal-meta{font-size:13px;color:var(--text-dim)}
+.modal-close{background:none;border:none;color:var(--text-dim);font-size:24px;cursor:pointer;padding:4px;line-height:1}
+.modal-close:hover{color:var(--accent)}
+.modal-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.modal-tag{padding:5px 14px;background:rgba(155,89,182,.15);border-radius:15px;font-size:12px;color:var(--accent)}
+.modal-lyrics{line-height:2;font-size:15px;color:var(--text);white-space:pre-wrap}
+.modal-player{margin:16px 0;padding:12px;background:rgba(155,89,182,.1);border-radius:10px;border:1px solid rgba(155,89,182,.2);display:none}
+.modal-player audio{width:100%;height:40px;border-radius:8px}
+#back-top{position:fixed;bottom:30px;right:30px;width:48px;height:48px;background:var(--accent);border:none;border-radius:50%;color:#fff;font-size:20px;cursor:pointer;opacity:.8;transition:opacity .2s;display:none}
+#back-top:hover{opacity:1}
+.song-count{font-size:12px;color:var(--text-dim);padding:8px 24px;background:var(--secondary);border-bottom:1px solid rgba(255,255,255,.06)}
+@media(max-width:768px){
+#sidebar{display:none}
+#main{padding:12px}
+#song-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+.song-card{padding:14px}
+.modal-box{padding:20px}
+}
+</style>
+</head>
+<body>
+<nav id="top-nav">
+<div>
+<div class="site-title">🎵 许嵩音乐世界</div>
+<div class="site-subtitle">Vae's Music World · 词曲全才 · 中国风代表</div>
+</div>
+</nav>
+<div id="filter-bar">
+<div class="filter-row">
+<button class="filter-btn active" data-filter="all">🎵 全部</button>
+<div class="filter-sep"></div>
+<button class="filter-btn" data-filter="china">🏯 中国风</button>
+<button class="filter-btn" data-filter="ballad">💕 情歌</button>
+<button class="filter-btn" data-filter="rband">🎤 R&B</button>
+<button class="filter-btn" data-filter="rock">🎸 摇滚</button>
+<button class="filter-btn" data-filter="folk">🎸 民谣</button>
+<button class="filter-btn" data-filter="rap">🎤 说唱</button>
+<div class="filter-sep"></div>
+<button class="filter-btn" data-filter="classic">⭐ 经典</button>
+</div>
+</div>
+<div class="song-count">共 <span id="count">0</span> 首歌曲</div>
+<div id="main">
+<aside id="sidebar"><div class="sidebar-title">专辑导航</div><div id="album-nav"></div></aside>
+<div id="song-grid"></div>
+</div>
+<div id="lyrics-modal" onclick="if(event.target===this)closeLyrics()">
+<div class="modal-box">
+<div class="modal-header">
+<div><div class="modal-song-title" id="modal-title"></div><div class="modal-meta" id="modal-meta"></div></div>
+<button class="modal-close" onclick="closeLyrics()">✕</button>
+</div>
+<div class="modal-tags" id="modal-tags"></div>
+<div class="modal-player" id="modal-player"><audio id="modal-audio" controls></audio></div>
+<div class="modal-lyrics"><div class="lyrics-text" id="modal-lyrics-text"></div></div>
+</div>
+</div>
+<button id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<script>
+const albums=[
+{id:"zidingyi2009",name:"自定义",year:2009,emoji:"📖",color:"#3498db",desc:"首张专辑，词曲全创作",songs:[
+{title:"如果当时",tags:["china","ballad","classic"],lyrics:`为什么 你当时对我好
+又为什么 现在变得冷淡了
+我知道 爱要走 难阻挠
+反正不是我的 我也不该要
+
+你和我 曾经有共同爱好
+谁的耳边 总有绝句在萦绕
+我们俩 用文言文对话真的很搞笑
+还笑那曹操贪慕着小乔
+
+天灰了 雨坠了
+视线要模糊了
+此时感觉到你的重要
+爱走了 心走了
+你说你要走了
+我为你唱最后的古谣
+
+红雨瓢泼泛起了回忆怎么潜
+你美目如当年 流转我心间
+渡口边最后一面洒下了句点
+与你若只如初见 何须感伤离别`},
+{title:"有何不可",tags:["pop","ballad","classic"],lyrics:`天空好想下雨
+我好想住你隔壁
+傻站在你家楼下
+抬起头数乌云
+如果场景里出现一架钢琴
+我会唱歌给你听
+哪怕好多盆水往下淋
+
+夏天快要过去 请你少买冰淇淋
+天凉就别穿短裙 别再那么淘气
+如果有时不那么开心
+我愿意将格洛米借给你
+你其实明白我心意
+
+为你唱这首歌没有什么风格
+它仅仅代表着我希望你快乐
+为你解冻冰河 为你做一只扑火的飞蛾
+没有什么事情是不值得
+
+为你辗转反侧 为你放弃世界有何不可
+夏末秋凉里带一点温热 有换季的颜色`},
+{title:"城府",tags:["ballad","rband","classic"],lyrics:`你走之后 一个夏季熬成一个秋
+我的书上你的正楷眉清目秀
+一字一字宣告我们和平分手
+好委婉的交流 还带一点征求
+
+你已成风 幻化的雨下错了季候
+明媚的眼眸里温柔化为了乌有
+一层一层院墙把你的心困守
+如果没法回头 这样也没不妥
+
+你的城府有多深
+我爱的有多蠢 是我太笨
+还是太认真 幻想和你过一生
+
+你的城府有多深
+我爱的有多蠢 不想再问
+也无法去恨 毕竟你是我最爱的人
+
+曾经你的眼神 看起来那么单纯
+嗯 指向你干净的灵魂
+什么时候开始变得满是伤痕
+戴上假面也好 如果不会疼
+
+爱情这个世界 有那么多的悖论
+小心翼翼不见得就获得满分
+我们之间缺少了那么多信任
+最后还是没有 打开那扇心门
+
+你的城府有多深
+我爱的有多蠢 是我太笨
+还是太认真 幻想和你过一生
+
+你的城府有多深
+我爱的有多蠢 不想再问
+也无法去恨 毕竟你是我最爱的人
+
+我曾经苦笑着问过我自己
+在某个夜里 卸下伪装的你
+是不是也会哭泣
+
+你的城府有多深
+我爱的有多蠢 是我太笨
+还是太认真 幻想和你过一生
+
+你的城府有多深
+我爱的有多蠢 不想再问
+也无法去恨 毕竟你是爱过我的人`},
+{title:"多余的解释",tags:["rband","ballad","classic"],lyrics:`那阵时 我们很聪明
+我们的话题不断 笑声连连
+那时候 以为永远
+却变成了多余的解释
+
+你总是说 等一下等一下
+可是 等一下 是多久
+我站在你楼下 等到天黑
+你都没有出现
+
+多余的解释 只会更悲伤
+不如沉默 让时间来证明
+多余的解释 只会更迷茫
+不如就让往事随风
+
+我删掉你的号码 我删掉你的照片
+我以为 这样就能重新开始
+可是回忆 怎么也删不掉
+它一直在这里 不曾离开`},
+{title:"坏孩子",tags:["pop","ballad"],lyrics:`绝世的画 缺了角就会掉价
+悄悄话说得太沙哑 气氛就会尴尬
+你突然说想看大雪 现在却偏偏是夏天
+你从来不爱打雨伞 喜欢我的白色衬衫
+
+你当时说你很爱我 我偷偷以为是真的
+后来你说我太幼稚 不够成熟
+我想问 为什么 不能永远
+也许是我 太坏 不值得被爱
+
+那天你说你要走了
+我没有挽留 也没有追问
+只是默默看着你离开
+直到你消失在人海`},
+{title:"清明雨上",tags:["china","folk","classic"],lyrics:`窗透初晓 日照西桥 云自摇
+想你当年荷风微摆的衣角
+木雕流金 岁月涟漪 七年前封笔
+因为我今生挥毫只为你
+
+雨打湿了眼眶 年年倚井盼归堂
+最怕不觉泪已拆两行
+我在人间彷徨 寻不到你的天堂
+东瓶西镜放 恨不能遗忘
+
+又是清明雨上 折菊寄到你身旁
+把你最爱的歌来轻轻唱
+
+远方有琴 愀然空灵 声声催天雨
+涓涓心事说给自己听
+月影幢幢 烟火几重 烛花红
+红尘旧梦 梦断都成空
+
+雨打湿了眼眶 年年倚井盼归堂
+最怕不觉泪已拆两行
+我在人间彷徨 寻不到你的天堂
+东瓶西镜放 恨不能遗忘
+
+又是清明雨上 折菊寄到你身旁
+把你最爱的歌来轻轻唱`},
+{title:"认错",tags:["ballad","rband","classic"],lyrics:`那天午后 我站在你家门口
+你咬咬嘴唇还是说出了分手
+我的挽留和眼泪全都没有用
+或许我应该自食这苦果
+
+你的迁就 我一直领悟不够
+以为爱已强大的不要理由
+心开始颤抖 明白了你的难受
+但你的表情已经冷漠
+
+全是我的错
+现在认错有没有用
+你说你已经不再爱我
+我带你回忆曾经快乐的时空
+你只是劝我别再执着
+
+全是我的错
+现在认错有没有用
+你说你喜欢如今的生活
+你带我回忆爱里互相的折磨
+还告诉了我 别再来认错 认结果`},
+{title:"内线",tags:["rband","rock"],lyrics:`血腥的风放肆嘲笑漫天的黄叶
+这大街已横尸遍野
+而你却消失在蒙面执行任务杀气腾腾的夜
+我听见有人猜 你是
+敌人潜伏的内线
+
+和你相知多年
+我确信对你的了解
+你舍命救我画面
+一一在眼前浮现
+司空见惯了鲜血
+你忘记你本是娇娆的红颜
+感觉你我彼此都那么依恋
+
+你落入封闭的地牢
+发不出求救的讯号
+我折返这古堡 提着刀
+杀红了眼 不依不饶
+
+你落入封闭的地牢
+发不出求救的讯号
+我却能感应到
+打开锁链 你浅浅笑和我拥抱
+
+我从来没有想到的是
+这是你我第一次拥抱 带着浅浅笑
+你说会陪我一直到老 远离这尘嚣
+我闭着眼感受幸福的微妙
+把刀剑扔掉
+你突然转身 匕首刺进我的心脏
+带着浅浅笑`},
+{title:"星座书上",tags:["ballad","pop"],lyrics:`星光点亮了 海水泛起皱褶
+晚风咸咸的 吹散你我身旁余热
+不够彼此信任 还是有了裂痕
+为什么感觉有些陌生了
+
+沿海岸奔跑 寻找属于我们的岛
+有一些问号 也许对你并不重要
+星座书上说我们不合
+金牛座的我配不上你的好
+
+难过后想想 也许只是碰巧
+我们的故事写书人怎么明了
+星座书上说我们不合
+最后我偷偷把那页撕掉
+
+真的爱情 没法预料
+何必让你 星座书上
+说的好像是真的`}
+]},
+{id:"xunwu2010",name:"寻雾启示",year:2010,emoji:"🌫️",color:"#2ecc71",desc:"第二张专辑，风格成熟",songs:[
+{title:"叹服",tags:["ballad","rband","classic"],lyrics:`电影院里 你的背影还是那么纯情
+有种迷人的魅力 隔着陌生的距离
+昨天分手 你止不住眼泪的决堤
+还问我为何相爱的人不能在一起
+
+你的过去没人知道
+想搜索也搜索不到
+我俩彼此在猜测
+对方的沉默
+
+叹服 叹服
+你的谎言多舒服
+我实在 服了你啦
+叹服
+
+叹服 叹服
+你的谎话越来越离谱
+我开始怀疑我是谁
+Oh 叹服`},
+{title:"灰色头像",tags:["ballad","rband","classic"],lyrics:`昨夜做了一个梦 梦里我们回到手牵着手
+醒来的失落 无法言说
+打开了OICQ 聊天记录停步去年的深秋
+最后的挽留 没有说出口
+
+我们还是朋友 是那种最遥远的朋友
+你给过的感动 你伤过的心
+我都记得 都是灰色的天空
+
+我以为 不联络
+就可以把你忘掉
+以为不联络
+就可以慢慢的 死掉
+
+灰色头像 灰色的头像
+你的世界 已经不包括我了
+灰色头像 已经褪色
+我的世界 已经没有你了
+
+我站在窗边 看着霓虹闪烁
+你的城市 现在几点钟
+我的灰色头像 再也不会亮起
+你是否会想起 想起我`},
+{title:"我无所谓",tags:["rap","pop"],lyrics:`我听说今年不再流行RAP
+民族的才是世界的 唱红歌最in
+不过没关系 如果什么流行我就唱什么
+那不跟那谁和那谁一样一样的
+
+有没有那么多 那么多人都在创作
+怎么有好多听来听去 都是同一个调调
+你们有的我都有 你们没有的我也有
+听一遍就能唱 听两遍就能背
+
+我无所谓 我不在乎
+你们爱怎么唱怎么唱
+我走我的路 让他们说去
+这才是我 许嵩的风格
+
+我无所谓 真的无所谓
+谁赢谁输 笑到最后的才是赢家`},
+{title:"庐州月",tags:["china","folk","classic"],lyrics:`儿时凿壁偷了谁家的光
+宿昔不梳 一苦十年寒窗
+如今灯下闲读 红袖添香
+半生浮名只是虚妄
+
+三月 一路烟霞 莺飞草长
+柳絮纷飞里看见了故乡
+不知心上的你是否还在庐阳
+一缕青丝一生珍藏
+
+桥上的恋人入对出双
+桥边红药叹夜太漫长
+月也摇晃 人也彷徨
+乌篷里传来了一曲离殇
+
+庐州月光 洒在心上
+月下的你不复当年模样
+太多的伤 难诉衷肠
+叹一句当时只道是寻常
+
+庐州月光 梨花雨凉
+如今的你又在谁的身旁
+家乡月光 深深烙在我心上
+却流不出当年泪光`},
+{title:"不煽情",tags:["ballad","folk"],lyrics:`一个曾经最熟悉的号码闪烁着
+你半年没打来过了
+你说下个月就要移民加拿大了
+祝你在那边过的快乐
+
+我们在一起的时候真的很快乐
+我想我会一直记得
+彼此真心付出过了那就够了
+还有什么是值得
+
+不煽情 我不煽情
+煽情的话我学不来
+不煽情 我不煽情
+说出来的都是假的
+
+祝你幸福 在那个遥远的国家
+也许我会忘记你 也许我会一直记得
+不煽情 我不煽情
+就让这份感情 慢慢淡去`},
+{title:"我们的恋爱是对生命的严重浪费",tags:["rock","ballad"],lyrics:`阳光穿透 金粉洒在圆桌
+两人对坐 半句话都没有
+不是在暗斗 是真的没话说
+当初的温柔 已被时间带走
+
+还牵着手 是责任感在逗留
+但你口中 爱字已不常听见
+我们的恋爱是对生命的严重浪费
+可我还不愿 承认这个事实
+
+相爱的时候总笑谈 爱情多简单
+分开之后才明白 这有多难
+我们的恋爱是对生命的严重浪费
+可我还在等 你的回心转意`},
+{title:"白马非马",tags:["china","rband","classic"],lyrics:`就像一部电影 原谅惨败的票房
+我走在街上闷着头 游荡把心事流放
+关掉电话 卸下行囊 席地坐路旁
+一如乞人 不需要形象
+
+万家灯火 带领星光 拼出个晚上
+绚烂的欲望涌进了 街巷
+这虚伪的地方 我选择流浪
+白马非马 我不是你说的那样
+
+也许你不懂我 为什么这么倔强
+也许我不该解释 白马怎么会是马
+我是我 不需要任何人来定义
+白马非马 真相只有自己知道
+
+你说我太自我 我说我有原则
+这世界太多规矩 我不想被束缚`},
+{title:"单人旅途",tags:["ballad","folk","classic"],lyrics:`独自走在陌生的街头
+人来人往 谁也不认识谁
+我背着简单的行囊
+开始一个人的旅途
+
+曾经我们说好 一起走遍世界
+可是现在只剩我一个人
+看日出日落 看云起云涌
+身边的位置 空空荡荡
+
+单人旅途 不需要旅伴
+一个人的风景 也很好
+只是偶尔会想起
+我们曾经的约定
+
+火车开往陌生的城市
+窗外风景一闪而过
+我带着耳机 听着我们的歌
+跟着旋律轻轻和`},
+{title:"在那不遥远的地方",tags:["pop","folk"],lyrics:`在那不遥远的地方
+埋着你的梦想
+散发出微小的光芒
+那是属于你的土壤
+等着你去开掘宝藏
+
+哪里会有小桥流水
+哗啦啦的洗去尘灰
+漂浮桃花蕊 它有多美
+采一片换你真心相对
+
+哪里会有彩云在追
+明月又能无缺几回
+人生不完美 不要后退
+
+就算一路跌跌撞撞
+在那不遥远的地方
+有我为你鼓掌
+坚强是你一生的武装`}
+]},
+{id:"sugela2011",name:"苏格拉没有底",year:2011,emoji:"📚",color:"#e74c3c",desc:"第三张专辑，中国风巅峰",songs:[
+{title:"想象之中",tags:["ballad","rband","classic"],lyrics:`想象之中 雨过了一道彩虹
+升起了烟火 白色天空
+想象之中 你还好吗
+我在家里 想着你
+
+想象之中 一切都与想象不同
+雨过了天晴 没有彩虹
+你走了以后 我学会了沉默
+习惯了一个人 生活
+
+想象之中 我以为我会很痛
+却发现平静得像一阵风
+想象之中 回忆变得模糊
+只有你的轮廓 还清晰记得
+
+想象之中 窗外下起了雨
+我站在窗前 看着远方
+想象之中 一切都会过去
+包括你 包括我`},
+{title:"河山大好",tags:["pop","folk","china"],lyrics:`最近有点血压高 血糖也不低
+最亚健康状态 坐久了腿发软
+电脑看久了脖子它也会酸也会酸
+数字时代貌似把生活节奏加快
+也让人变得行动迟缓
+
+忙忙忙 忙出个什么所以然
+地球离了谁它都照样公转自转
+河山大好 出去走走
+碧海蓝天吹吹风 心情大好
+
+别窝在家当懒虫 河山大好
+忙忙忙 忙出个什么所以然
+叹叹叹 弹指一挥人生苦短
+终点不明沿途风景要好好看
+
+你可以隐隐期待 途中佳缘到来
+保持浪漫心态 活着就不算坏`},
+{title:"拆东墙",tags:["china","rock","classic"],lyrics:`公元六五九年 十九岁
+他接他爹的班
+考不取功名的后果是接手自家酒馆
+又听说同乡谁已经赴京做上小官
+他的梦 往来客谁能买单
+
+代代叹世道难 人心乱
+可又能怎么办
+他女人的洞房 至今还未圆
+他的郎情妾意 他已送走她去了江南
+
+拆东墙 补西墙
+到头来还是一场空
+拆东墙 为了谁
+还不是为了活下去
+
+花开花谢 花开花谢
+人生能有几回少年
+东拆西拆 到最后
+只留下一声叹息`},
+{title:"医生",tags:["ballad","rband"],lyrics:`你说懂了爱不是浪漫
+我的本分给你安全感
+是他让你受了内伤
+我努力恢复你健康
+
+我也没那种庸俗的情结
+可他还是在你心里边
+偶尔梦中还窜到嘴边
+其实我也能够了解
+心碎一旦到过极限
+用多少岁月 都愈合不完全
+
+我是你无奈的选择
+你只想跟一个好人
+我为你戴上了戒指
+你的笑也还算逼真
+
+我是你无奈的选择
+却不是多么爱的人
+只怪他下手太残忍
+改变你一生`},
+{title:"微博控",tags:["pop","rband"],lyrics:`你的昵称实在够土很多人用过
+Lucy不寂寞 Fancy有一坨
+你的头像和你够像但不够诱惑
+见过本尊的只有我
+
+你关注的人里面有七个非常火
+全部是男的 我也有点火
+你最happy的时候 是刷新那一秒
+我评论了一句 你第二天才回我
+
+我是可以什么都不说
+但不可以什么都不做
+放下客户端立地成佛
+
+你的微博 暴露了你的一切
+你的心情 你的行踪
+我都看在眼里
+却不敢问你为什么`},
+{title:"毁人不倦",tags:["rock","ballad"],lyrics:`几片 来自松岛的枫叶
+堆叠 魅惑血红的感觉
+少年 从这里开始新的体验
+最后 造了孽
+
+一月 当半数生命终结
+付钱 付到忏悔的境界
+蜕变 洒下了一滩碎片
+它毁人不倦
+
+初夏的雨 催人长大
+然后呢
+然后是 各自走散
+
+几片 来自松岛的枫叶
+堆叠 魅惑血红的感觉
+少年 从这里开始新的体验
+最后 造了孽
+
+一月 当半数生命终结
+付钱 付到忏悔的境界
+蜕变 洒下了一滩碎片
+它毁人不倦`},
+{title:"双人旁",tags:["rband","ballad"],lyrics:`当你坐在我身旁
+梨花带雨的模样
+电影情节有点伤
+把你的柔弱释放
+
+当我坐在你身旁
+悬的手就会紧张
+往哪儿放
+值得再三思量
+
+你提过的好地方
+我标在地图上
+等哪一天 我带你去躺在那屋顶上
+
+双人旁 你的月光
+双人旁 我会收藏
+双人旁 偶尔会想
+双人旁 当时太紧张
+
+双人旁 你转播的歌好耳熟
+双人旁 我们坐一起听过
+双人旁 当日嫌它的唱法做作
+双人旁 现在听起来很生动`},
+{title:"降温",tags:["china","ballad"],lyrics:`11月20日0点 北京 小雨
+心情：好平静
+
+今天做了很多事情 回到家里有点烦心
+接到她的电话 我都没有使用好的语气
+Sorry 那不是我本意
+也不知道我最近是怎么搞的
+
+也许被，也许是那几通电话
+让我有些不对和乱了
+
+新闻里那场雨
+淅沥沥下了三天
+我也跟着流了三天泪
+我想是不是我不够成熟
+所以才看不清这个世界的浑浊
+
+给你我的问候 但你不回
+我站在门外 看着灯火通明
+这场雨降温了天气
+却冷了我的心`},
+{title:"敬酒不吃",tags:["rock","rband"],lyrics:`有些人一吃饭就很喜欢敬酒
+三杯酒下肚就能够唤你朋友
+半醉不醉后他说出一个请求
+就是……哈……啊……嗯……缓缓开口
+
+想让我喝酒 要问真心够不够
+令母毕生遗憾想必是儿子丑
+看你不顺眼自然有它的理由
+敬酒不吃 你们吃罚酒的爽
+
+我一个人品尝 你心里定在骂我轻狂
+但能把我怎样 身在高楼心在北大荒
+我就这副死样 何必跟我装没用场
+
+有些事情不是我不想
+是我真的不屑
+敬酒不吃 罚酒我也不喝
+这就是我的态度`},
+{title:"千百度",tags:["china","folk","classic"],lyrics:`关外野店 烟火绝 客怎眠
+寒来袖间 谁为我 添两件
+三四更雪 风不减 吹袭一夜
+只是可怜 瘦马未得好歇
+
+怅然入梦 梦几月 醒几年
+往事凄艳 用情浅 两手缘
+鹧鸪清怨 听得见 飞不回堂前
+旧楹联红褪墨残谁来揭
+
+我寻你千百度 日出到迟暮
+一瓢江湖我沉浮
+我寻你千百度 又一岁荣枯
+可你从不在 灯火阑珊处`}
+]},
+{id:"mengyou2012",name:"梦游计",year:2012,emoji:"💭",color:"#9b59b6",desc:"第四张专辑，哲思之作",songs:[
+{title:"胡萝卜须",tags:["rock","ballad"],lyrics:`胡萝卜须 抓住蟾蜍
+在摇椅上 它说的对
+大人把世界分了黑白
+要你照着做 不要想太多
+
+胡萝卜须 抓住蟾蜍
+碾碎它 证明你长大
+别哭 别哭 小朋友
+这就是成长要付出的代价
+
+他笑得多无奈
+他哭得多大声
+胡萝卜须 只是一道菜
+为什么 需要那么多爱
+
+大人们 总是说
+这都是为了你好
+胡萝卜须 流着泪
+把蟾蜍喂给了猫`},
+{title:"幻听",tags:["ballad","rband","classic"],lyrics:`在远方的时候
+又想你到泪流
+这矫情的措辞结构
+经历过的人会懂
+那些不堪言的疼痛
+也就是我自作自受
+你没有装聋
+你真没感动
+
+一个人的时候
+偷偷看你的微博
+你转播的歌好耳熟
+我们坐一起听过
+当日嫌它的唱法做作
+现在听起来竟然很生动
+可能是时光让耳朵变得宽容
+
+如今一个人听歌总是会觉得失落
+幻听你在我的耳边轻轻诉说
+夜色多温柔
+你有多爱我
+如今一个人听歌总是会觉得难过
+爱已不在这里我却还没走脱
+列表里的歌
+随过往流动`},
+{title:"对话老师",tags:["pop","rap"],lyrics:`上课铃声响起 我走进教室
+看见老师站在讲台上
+手里拿着粉笔 眼睛看着我
+仿佛在说 你又迟到了
+
+老师啊老师 你也有过青春吧
+你也曾经 为爱疯狂过吧
+只是后来 你选择了安稳
+把梦想 藏在了心底
+
+对话老师 我想问你
+什么才是人生的意义
+你叫我们要听话
+可你自己 听谁的话
+
+岁月改变了你我
+不变的是 那颗初心`},
+{title:"伴虎",tags:["rock","china"],lyrics:`我们说好都不贪不想
+这世界太多来去无常
+如果可以给我三千丈
+白发苍苍 纸泻轻狂 浓墨飞扬 阵亡
+
+我们说好都不躲不藏
+残舟已经乘破了巨浪
+如果战斗成我的理想
+万人敬仰 举世无双
+
+来啊 来啊 来啊 谁赢谁输
+来啊 来啊 谁在最后
+伴君如伴虎 有多少人为此付出
+到老来 才明白这道理
+
+旧时王谢堂前燕 飞入寻常百姓家
+荣华富贵一场空 何必太执着`},
+{title:"闺蜜",tags:["ballad","rband"],lyrics:`你和她从小就熟
+念书时每天放学都一起走
+三十八度顶着烈日游泳
+八卦莫文蔚和孙燕姿谁更瘦
+
+毕业后你们还是好朋友
+时不时的约她喝几杯酒
+最头疼的烦恼全部都说
+她是你最信任的闺蜜
+
+可是有一天 你哭着告诉我
+她抢走了你的男朋友
+你们从此不再是闺蜜
+变成了最熟悉的陌生人
+
+这世间的感情 谁能说得清楚
+也许是我太天真 也许是你太傻`},
+{title:"装糊涂",tags:["pop","ballad"],lyrics:`除刺的玫瑰 安全又唯美
+我踏实放在床头柜 醒来以后昏聩
+脑袋非常疲惫 罪魁祸首是那香味
+爱没有枯萎 只有点乏味
+
+乏味撺掇着人出轨 我扛住了
+可是你 让我措手不及
+如果爱一个人 注定是要受苦
+这第一课 进退维谷
+
+对于你的谎话 我装糊涂
+不想把你了解太清楚
+装糊涂是极难的艺术
+每个说谎的人 也许都有苦衷
+
+就把痛埋在岁月之中
+学会伪装 学会不在乎`},
+{title:"Play With Style",tags:["pop","rband"],lyrics:`谈什么风格 论什么独特
+说实话在我眼里全是
+有的没的撒哈拉
+名相的造作 心识的困惑
+还有多少人尝试侧耳倾听
+自己呼吸和脉搏
+
+Show me show me show me
+让我看看你的Style
+Play with style 做你自己
+不要被世界定义
+
+跳什么风格 玩什么独特
+这世界上太多规则
+不如 我行我素
+活出自己的一片天
+
+打破框架 突破束缚
+找到自己的态度
+这就是 许嵩的风格`},
+{title:"心疼你的过去",tags:["ballad","rband"],lyrics:`Baby 我看着你的眼睛
+总是带着蓝色笑意
+和你在一起就是非常开心的事情
+好多人羡慕我 夸赞你的美丽
+
+我模仿你的笑容 回报给他们官方的谢意
+也苦笑我自己
+你跟我聊前任 聊到哭红了眼睛
+心疼你的过去 那些伤心的往事
+
+你轻轻的安慰我 不要再回味过去的对错
+要珍惜未来生活
+我嘴上答应但心里还是很痛
+心疼你的过去 谁作孽的悲剧
+
+擦掉眼泪很容易 但却无法擦掉回忆
+心疼你的过去 别怕流言蜚语
+我会用余生 好好疼你`},
+{title:"全球变冷",tags:["folk","ballad"],lyrics:`风在吹 吹什么 风在吹
+吹散了落叶 吹不散寂寞
+全球在变冷 人心在变冷
+可我还在等 等一个温暖
+
+看新闻说 今天哪里又出了事
+人心不古 世态炎凉
+如果我路过 会伸出援手吗
+还是像他们一样 冷漠走开
+
+我想要 世界多点爱
+可是自己却做不到
+全球变冷 从我开始
+也许能改变一点点
+
+不要等到失去了 才懂得珍惜
+不要等到冷漠了 才想起温暖`},
+{title:"亲情式的爱情",tags:["ballad","folk","classic"],lyrics:`新月 湖畔 电影 西餐 那些夜晚
+熟悉的桥段 冲动变平淡
+上班 下班 买菜 做饭 最后洗碗
+琐碎的牵绊 滋长不满
+
+相爱的时候总笑谈 爱情多简单
+你走了以后 才算尝透了心酸
+亲情式的爱情 有多平淡就有多深刻
+柴米油盐 是爱的考验
+
+你当初追求的浪漫
+如今变成了习惯
+我当初许下的诺言
+如今要用一生来兑现
+
+亲情式的爱情 不浪漫但很温暖
+吵吵闹闹 才是生活的答案`}
+]},
+{id:"buru2014",name:"不如吃茶去",year:2014,emoji:"🍵",color:"#1abc9c",desc:"第五张专辑，禅意中国风",songs:[
+{title:"等到烟火清凉",tags:["china","folk"],lyrics:`天干物燥 小心火烛
+天干物燥 小心火烛
+天干物燥 小心火烛
+天干物燥 小心火烛
+天干物燥 小心火烛
+天干物燥 小心火烛
+
+天干物燥 我烛火点亮
+天干物燥 山到处都在彷徨里
+天干物燥 雨沉默 浇灭了
+天干物燥
+等到 烟火清凉`},
+{title:"山水之间",tags:["china","folk","classic"],lyrics:`昨夜同门云集 推杯又换盏
+今朝茶凉酒寒 豪言成笑谈
+半生累 尽徒然 碑文完美有谁看
+隐居山水之间 誓与浮名散
+
+湖畔青石板上 一把油纸伞
+旅人停步折花 淋湿了绸缎
+满树玉瓣多傲然 江南烟雨却痴缠
+花飞雨追一如尘缘理还乱
+
+落花雨 你飘摇的美丽
+花香氤 把往日情勾起
+我愿意 化浮萍躺湖心
+只陪你 泛岁月的涟漪
+
+古木檀香小筑 经文诵得缓
+锦服华裳一炬 粗袖如心宽
+林中抚琴曲委婉 群山听懂我悲欢
+泪如雨落才知过往剪不断`},
+{title:"七夕",tags:["china","ballad"],lyrics:`江畔暮雨纷纷 夕阳西沉
+津渡烛影深深 是我在等
+你歌声犹绕耳 清风在侧
+恍然发觉琴案已蒙尘
+
+当日罗带轻分 缘定今生
+时光一去如梭似你穿针
+葵星未拜 禅院深深 尘封旧情
+啊啊啊啊 啊啊啊啊
+
+夜幕垂 鹊桥会 七夕的念想
+皎月归 我轻随 烟火对影赏
+你我在心中 是与非都无妨
+情话无人讲 也就不用讲
+且把浓情化作诗两行`},
+{title:"有桃花",tags:["china","pop"],lyrics:`赏花赋月不是我本领
+也不如人家有型阔气
+好多朋友都劝我别再追随你
+别做一条爱上沙漠的鱼
+
+可我知道他们都不懂你
+我也没那么容易放弃
+在茫茫人海之中 有一颗真心
+要不要选择权在你
+
+是差点运气 还是没有缘分
+也许是我太笨 不会说甜言蜜语
+有桃花运 但是没有你
+
+啊啊啊啊 啊啊啊啊
+映日荷花别样红
+你的笑 像一阵春风
+吹进我心中`},
+{title:"惊鸿一面",tags:["china","ballad","classic"],lyrics:`翻手为云覆手为雨
+金盆洗手止风雨
+不恋红尘却难舍回忆
+每一段都有你
+
+年少初遇常在我心
+多年不减你深情
+江山如画又怎能比拟
+你送我的风景
+
+柳下闻瑶琴起舞和一曲
+仿佛映当年翩若惊鸿影
+谁三言两语撩拨了情意
+谁一颦一笑摇曳了星云
+
+纸扇藏伏笔玄机诗文里
+紫烟燃心语留香候人寻
+史书列豪杰功过有几许
+老庄是老庄 社会是社会`},
+{title:"隐隐约约",tags:["china","folk"],lyrics:`枕边 如此隐隐约约
+发香绵延 好似江水连天
+指尖 如此隐隐约约
+肩上红线 忽明忽暗的坠跌
+
+坠跌 坠跌
+许愿 如此隐隐约约
+落款未签 日出之后变脸
+有眼 如此隐隐约约
+记录所有 你的笑与泪
+
+隐隐约约 是你的身影
+隐隐约约 是你的声音
+想要看清 却又模糊
+这就是爱情的模样`},
+{title:"宇宙之大",tags:["folk","ballad"],lyrics:`你的脾气那么温驯 如湖畔的风景
+可能南极下一场雪 让人很难留意
+我的脾气那么隐秘 如黑夜的骤雨
+有时急 有时宁 有时烦人心
+
+我欠你的不只是一句对不起
+你欠我的不只是一句没关系
+宇宙之大 我们只是一粒沙
+爱过恨过 才算活过
+
+宇宙那么大 我想去看看
+可是没有你 一切都是空白`},
+{title:"梧桐灯",tags:["folk","ballad"],lyrics:`梧桐树荫了整条街
+灯火穿透了她的叶
+窗外夜风裹走时间
+后退的景谁在流连
+
+一个人开车去赴宴
+右座有张烫金喜帖
+新娘的名字好亲切
+搞不好曾梦里出现
+
+孤单坐进一桌陌生
+推杯换盏灯影幢幢
+结束时外面正在下雨
+还好有伞 可惜没有人撑
+
+我和回忆缩在角落没露面
+当时的我想不到今天
+错过的人回不到从前
+当时的你静静坐在我的左手边
+梧桐灯下是你静美的侧脸
+
+梧桐灯下是我熄灯的双眼
+梧桐树荫了整条街
+灯火穿透了她的叶`},
+{title:"弹指一挥间",tags:["china","folk"],lyrics:`弹指一挥间 你已离开多年
+那些往事 随风飘远
+可我的心 还在原地等
+等一个答案 等一个明天
+
+雨落兰亭 墨染素笺
+谁在深夜里独眠
+弹指一挥间 青春已逝
+你我都不再是 从前的少年
+
+也许这就是 命运的安排
+让我们相遇 又分开
+弹指一挥间 一切都变了
+不变的是 那份思念
+
+前尘多少事 都付笑谈中
+弹指一挥间 何必太执着`}
+]},
+{id:"qingnian2016",name:"青年晚报",year:2016,emoji:"📰",color:"#f39c12",desc:"第六张专辑，生活哲思",songs:[
+{title:"奇谈",tags:["rock","rband"],lyrics:`兽皮不要掀开 你说能孵蛋
+壁画不要破坏 能进博物馆
+猎人要吃素菜 野鹿在期待
+我一字一句都要意在言外
+
+精美砾石一块 打造要气派
+粗糙历史一段 座次怎么摆
+丛林放一把火 要烧尽所有失败
+谁上谁下 谁是真英雄
+
+那些奇谈 那些怪论
+谁说的对 谁说的错
+这个世界 纷纷扰扰
+不如一笑而过
+
+奇谈怪论 我听得多了
+不如做好自己 走自己的路`},
+{title:"雅俗共赏",tags:["pop","rband","classic"],lyrics:`是否每一部戏都看得完整场
+是否每一天过得都有多难忘
+表情迟钝可能因为比较爱想
+不擅长眉目表达
+
+总在盼望 总在失望
+日子还不都这样
+俗的无畏 雅的轻狂
+还不都是一副臭皮囊
+
+他们说快写一首情歌雅俗共赏
+落笔传神还要容易传唱
+上得厅堂也下得厨房
+就像我一直在找的姑娘
+
+快写一首情歌雅俗共赏
+打完字谜还要接着打榜
+如果胡同弄堂全都播放
+气韵里居然添了些孤芳自赏
+
+谁的故事有营养
+大俗或大雅的都在理直气壮
+洒狗血或白雪的现场
+都邀我观赏
+还真是大方
+
+快写一首情歌雅俗共赏
+落笔传神还要容易传唱
+上得厅堂也下得厨房
+就像我一直在找的姑娘
+
+有没有一种生活雅俗共赏
+情节起伏跌宕让人向往
+满纸荒唐中窥见满脸沧桑
+触到神经就要懂得鼓掌
+别说一不在乎二没期望
+太超脱 中枪中奖感觉会一样`},
+{title:"最佳歌手",tags:["pop","ballad"],lyrics:`我在台上唱着 你在台下听着
+最佳的距离 是隔着人海
+唱你的歌 流你的泪
+你就是我的最佳歌手
+
+灯光照着你的脸 我看不清
+但我知道 你在笑
+最佳歌手 这个称号
+应该颁给你
+
+每一首歌 都是为你而唱
+每一个音符 都是你的名字
+最佳歌手 永远是你
+而我 只是你的观众
+
+最佳歌手 谢幕了
+观众散去 灯火熄灭
+可你的歌声 还在我心里`},
+{title:"幻胖",tags:["rap","pop"],lyrics:`得闲宁可散步 也不敢刷朋友圈
+因为有的姑娘总爱发自拍的照片
+她们腰肢纤纤 她们的脸很尖
+可她们总是会说 胖了胖了真纠结
+
+一开始会以为这不过是一种谦虚表演
+后来却发现是真诚的自我批判
+幻胖幻胖 只是幻觉
+真正的问题 是心态
+
+我也曾幻胖过
+照镜子总觉得不够好
+可后来想想 健康最重要
+管他胖瘦 自己开心就好
+
+别再幻胖了 接纳自己
+你就是最美的样子`},
+{title:"摄影艺术",tags:["ballad","folk"],lyrics:`拍摄艺术 拍下你的笑容
+按下快门 定格那一刻
+你的脸 占据整张照片
+我盯着看 看了很久
+
+那是我们一起看日出的清晨
+你的头发 有点乱
+我说 这样很好看
+你说 那就拍下来
+
+光圈调到最大 背景都模糊
+只有你是清晰的
+摄影艺术 就是留住瞬间
+可留住的人 却留不住心
+
+照片会褪色 记忆会模糊
+可那份感觉 永远都在`},
+{title:"平行宇宙",tags:["ballad","rband","classic"],lyrics:`在平行的宇宙里
+有没有另一个我
+做着不同的选择
+过着不同的生活
+
+在那个宇宙里
+我们有没有在一起
+还是擦肩而过
+谁也不认识谁
+
+也许在某个宇宙
+你正看着同一颗星星
+想起我
+那就是我们的 联系
+
+平行宇宙 有多少个
+哪个才是真实的
+也许都不重要
+重要的是 此刻我在想你`},
+{title:"燕归巢",tags:["china","folk","classic"],lyrics:`雨后江岸天破晓 老舟外人驾雾早
+燕归巢 衔春泥
+飞过千里万里 故乡在心上
+
+离别家乡岁月多 归来人事半消磨
+唯有门前镜湖水 春风不改旧时波
+
+燕归巢 年年归
+可我离开之后 还能回去吗
+故乡变了模样
+可我的心 还是一样
+
+羁鸟恋旧林 池鱼思故渊
+不管走多远 根在这里`},
+{title:"摆脱",tags:["rock","pop"],lyrics:`摆脱了二十出头的叛逆
+摆脱不了倔强的脾气
+摆脱了十足乏味的交际
+摆脱不了群居属性
+
+摆脱了听到谣言的揪心
+摆脱不了听美言的暗喜
+摆脱得了儿女私情
+摆脱不了内分泌
+
+谁不想摆脱这一切
+可又能怎么办
+也许这就是人生
+一边失去 一边得到
+
+别想太多 做自己就好`},
+{title:"早睡身体好",tags:["pop","ballad"],lyrics:`姑娘你看你 一到家就哭泣
+为流言几句 真的有点儿傻气
+你脑子聪明 但躲不了世俗的雨
+我心疼你 想替你撑伞
+
+早睡身体好 身体好
+别想太多 别睡不着
+明天太阳 照常升起
+没有什么过不去
+
+睡吧睡吧 明天又是新的一天
+我会在这里 一直陪着你`}
+]},
+{id:"xunbao2018",name:"寻宝游戏",year:2018,emoji:"💎",color:"#e67e22",desc:"第七张专辑，寻宝之旅",songs:[
+{title:"老古董",tags:["rock","folk"],lyrics:`无名的小楼 藏身一尊满脸沟壑
+论不定是美是愁的老古董
+留传多少年 陈旧还是孤胆坚守
+说不清是强是弱的老古董
+
+老古董 你也曾受万人拥戴追捧
+老古董 失传之前听我道声珍重
+老古董 一如我在八零年代出土的梦
+老古董 谢谢你老古董
+
+天涯里自会相逢
+直到我和你一样 成为老古董
+这世界变化太快
+有些东西 还是老的好`},
+{title:"大千世界",tags:["pop","rband","classic"],lyrics:`你穿着我的T恤 大到有些滑稽
+像沙漠连夜大雨 规则缺席
+亦真亦假的玩具 还握在你手里
+吃透温柔的暴力就不称奇
+
+我的黑框眼镜 在Assad湖边走火
+风马牛齐聚 你被带走时我被叫住
+
+大千世界 你在不在
+大千世界 你在不在
+等一场大雨
+大千世界 我在等待
+
+你的笑 像是大千世界的奇迹
+你的眼 装着整个世界的美好
+大千世界 我只想要你`},
+{title:"艺术家们",tags:["rock","rband"],lyrics:`你们最近有些画作 我怀疑是在天牢里完成的
+那种束手束脚 循规蹈矩 自甘堕落
+你们最近有些诗词 我怀疑是电脑软件生成的
+意识流到让人意识流产 还感觉飘飘然
+
+那些艺术家们的优越感
+我的老朋友们 对我的批评敬请开展
+我太多地方不如你们 大放厥词的人应该自我检讨失眠一晚
+
+我的老朋友们
+不要说爱死我的天真
+越往高处越冷 你们登珠峰前
+陪我冬眠`},
+{title:"九月清晨",tags:["ballad","folk"],lyrics:`午夜时分 你倚在旧沙发床
+柔声的哼唱 半首摇曳的歌
+只留一盏灯 光影似流沙昏黄
+在指尖流淌 余波荡漾
+
+深爱的人 可不可以爱一生
+你说何必想太远 给了我一颗吻
+深爱的人
+有些故事 不必问原因
+
+九月清晨 露水沾湿了睫毛
+你说这样的天气 适合思念`},
+{title:"浪",tags:["rock","pop"],lyrics:`已经好几年不沾一滴酒
+但今夜我和你一醉方休
+你说人活一世草木一秋
+束缚别那么多
+
+海中央我们的船开始晃悠
+风雷惊动巴甫洛夫的狗
+海浪用冲击甲板的动作
+提醒我该汹涌
+
+在浪里 我找回自己
+在浪里 我忘记忧伤
+让我们一起 在浪里舞蹈
+趁着年轻 浪个痛快
+
+浪子回头金不换
+可我不想回头`},
+{title:"重复重复",tags:["rock","rband"],lyrics:`那些重复着的箴言 拾人牙慧无人羞愧
+那些重复着的公园 批量设计也算美学
+那些重复着的影片 老梗纯属致敬经典
+那些重复着的商圈 以琳琅满目重复琳琅
+
+没有想象力 没有新鲜感
+日复一日 年复一年
+重复重复 我们都在重复
+谁能为我们 带来一点改变
+
+打破重复 打破常规
+做点不一样的事情`},
+{title:"明智之举",tags:["ballad","rband"],lyrics:`明智之举 你在北方某城 很偶尔下雨
+我在天南海北 很偶尔想你
+写不来十八九岁煽情字句
+孤单喂饱了理性
+
+想必你也看过了一些风景
+才明白什么样的适合自己
+翻着你朋友圈的评论
+想起我们 曾那样相爱
+
+明智之举 也许是最好的选择
+祝你也祝我 各自安好`},
+{title:"如约而至",tags:["ballad","folk","classic"],lyrics:`如果久别重逢 你会说什么
+也许是一句 好久不见
+如约而至 是个多美好的词
+等了那么久 终于等到你
+
+叶落花开 春去秋来
+如约而至 我在这里等
+不管等多久 都会等到
+这是我对你的承诺
+
+如约而至 是最好的结局
+不管中间经历了什么
+只要最后是你 就好`},
+{title:"柳成荫",tags:["folk","ballad"],lyrics:`多少事努力很久也没有个结果
+哭丧了脸却发现更糟的已来也
+多少人一心攀爬生命中的高点
+直到猝眠 壮志合眼
+
+生活像一盘草莓有烂有甜
+吃就吃得心甘也情愿
+放下吧 那些执念
+
+种下善因 收获善果
+无心插柳 柳成荫
+不强求 不执念
+顺其自然 就是最好的安排
+
+柳成荫 是一个美好的愿望
+也是对生活的一种态度`}
+]},
+{id:"huxi2021",name:"呼吸之野",year:2021,emoji:"🌿",color:"#27ae60",desc:"第八张专辑，生命思考",songs:[
+{title:"乌鸦",tags:["folk","ballad"],lyrics:`怀揣汹涌喷薄的热情
+可与生俱来无法讨喜
+纯黑的外形隐忍冷静
+月落时怎么会啼
+
+你的存在是一个奇迹
+造物的安排神秘无形
+只为了再一眼的相遇
+竟让我忘记了天敌
+
+当我又飞到这里
+啄着窗台发呆
+你嘴角向下 眼中闪着凶光
+
+等另一只 陪你一起
+消解了莫须有的光环和罪名
+转眼就谈不上年轻
+也嚼透了一些道理
+才相信 许多事没有道理
+
+等到你 喂我些反转剧情`},
+{title:"假摔",tags:["rock","ballad"],lyrics:`是个暴雪天 广播预警说还会
+持续一周的降雪 的降雪
+他骑着摩托车 挣着一份跑腿钱
+眼里迷入了风雪 迷入了风险
+
+他在纯白路口急转弯时
+人仰马翻很惨烈
+他在二十六圈了无痕的雪地
+像NBA球员假摔
+
+裁判的哨声 观众的欢呼
+有人倒下 有人站起
+这社会的规则
+有时候 比球场还复杂
+
+假摔的人 也许有苦衷
+真正摔倒的人 也许无人问津`},
+{title:"科幻",tags:["pop","rband"],lyrics:`我坐在清晨五点沙滩
+沙滩停泊着宇宙飞船
+两名外星人围着篝火促膝长谈
+我也有过这种浪漫
+
+那是纬度趋零的海岸
+你我贫穷却富有愉快
+彼时创造了供此时回味的素材
+像眼前的潮 幽暗也澎湃
+
+你说那边会不会有人
+和你一样 需要有人陪
+我说傻子才想回到过去
+不如展望未来
+
+如果有一个时光机
+我想回到过去 还是飞向未来
+科幻小说里的情节
+什么时候 能变成现实
+
+可是现实中 没有时光机
+我们只能 一步一步往前走`},
+{title:"万古",tags:["folk","china"],lyrics:`万古江河 悠悠流淌
+见证了多少 历史沧桑
+我站在江边 看着水流
+仿佛看到了 千年之前
+
+万古的风 吹过我的脸
+万古的月 照亮我的路
+在这万古的宇宙里
+我只是一粒尘埃
+
+可正是这粒尘埃
+也有自己的故事
+万古留名 或默默无闻
+都是自己的选择`},
+{title:"冰柜",tags:["folk","ballad"],lyrics:`冰柜里 冻着什么
+是你留下的 最后温度
+我打开它 看到那些食物
+想起你 曾经为我做的饭
+
+冰柜冷冷的
+就像你离开后的心
+我关上门 不再打开
+就让那些记忆 冻在里面
+
+也许有一天 我会打开
+那时候 我已经学会了放下`},
+{title:"超市",tags:["ballad","folk"],lyrics:`又是整整一天的伏案
+赶在夕阳落幕前
+进楼下的超市转转
+往来的人们挑选蔬果和酸奶
+
+这烟火气息
+就像记忆中你的温软
+一个白衣女孩
+从货架那端迎面而来
+
+蹙着眉费劲地抱着她满载的购物篮
+她身上有我 最熟悉不过的香味和步态
+我唐突地说我想帮忙拎一小段
+她可能笑话这生硬的搭讪
+
+我拎着篮子在她身后走得慢
+是重温和你逛超市的傍晚`},
+{title:"隔代",tags:["folk","ballad"],lyrics:`1991 学前的我常常住在这里
+每件老家具都那样熟悉
+多年过去 你不愿搬进高楼新寓
+因为这里 存满太多回忆
+
+嘿 世界一日千里
+嘿 可你已不关心
+等到我也老去
+能否有你此刻的笑容
+
+隔代的感情 最是珍贵
+你看着我长大
+我却看着你变老
+
+时光啊 请慢一点
+让我多陪陪你`},
+{title:"野人",tags:["rock","rband"],lyrics:`你不想听它瞎扯 然后附和
+你干净的眼神是那么美 像未经坎坷
+罗丹难免会落单 若取必舍
+你越不快乐 越沉迷做个思想者
+
+为你高歌 用一条蜿蜒隐秘的副歌
+流淌过多久才会深刻
+碑文才值得被记住
+
+我想做你的朋友
+不想做你的观众
+野人也有野人的快乐`},
+{title:"三尺",tags:["rock","rband"],lyrics:`对资深的骗子尽情撒谎
+给迟到游医一针催眠药
+向丛林宣传精美的仙草
+你的美容液兑水六毫升
+
+你爱不爱我 爱
+有人不爱你 害
+围观你入土后
+你一蹦三尺高
+
+呼吸家忌惮你
+我能做什么
+不如做个旁观者
+看这场闹剧 三尺高`},
+{title:"庞贝",tags:["china","ballad"],lyrics:`如果火山喷发 是灾难还是壮美
+静静看着你 就好像没想过防卫
+崩塌的瞬间我还攥着新鲜玫瑰
+在掌纹中间划开一道事与愿违
+
+那些远去的事 没有人会再提起
+昨夜的梦里 你面目全非
+你说回不去了
+你在庞贝 我也在庞贝
+
+庞贝古城 一夜之间毁灭
+可爱情 如果遇到火山
+会不会也 一夜之间
+什么都不剩`}
+]}
+];
+
+const tagNames={china:"中国风",ballad:"情歌",pop:"流行",rband:"R&B",rock:"摇滚",folk:"民谣",rap:"说唱",classic:"经典"};
+const audioMap={"不煽情":"044. 不煽情 - 许嵩.m4a","乌鸦":"016. 乌鸦 - 许嵩.m4a","你若成风":"009. 你若成风 - 许嵩、莫诗旎.m4a","全球变冷":"021. 全球变冷 - 许嵩.m4a","医生":"014. 医生 - 许嵩.m4a","千百度":"008. 千百度 - 许嵩.m4a","半城烟沙":"半城烟沙 - 许嵩.m4a","坏孩子":"035. 坏孩子 - 许嵩.m4a","城府":"115. 城府 - 许嵩.m4a","多余的解释":"多余的解释 - 许嵩.m4a","大千世界":"026. 大千世界 - 许嵩.m4a","天龙八部之宿敌":"029. 天龙八部之宿敌 - 许嵩.m4a","如果当时":"005. 如果当时 - 许嵩.m4a","如约而至":"如约而至 - 许嵩.m4a","宇宙之大":"046. 宇宙之大 - 许嵩.m4a","山水之间":"020. 山水之间 - 许嵩.m4a","平行宇宙":"094. 平行宇宙 - 许嵩.m4a","幻听":"011. 幻听 - 许嵩.m4a","幻城":"022. 幻城 - 许嵩.m4a","庐州月":"010. 庐州月 - 许嵩.m4a","惊鸿一面":"028. 惊鸿一面 - 许嵩、黄龄.m4a","想象之中":"122. 想象之中 - 许嵩.m4a","我们的恋爱是对生命的严重浪费":"114. 我们的恋爱是对生命的严重浪费 - 许嵩.m4a","我想牵着你的手":"117. 我想牵着你的手 - 许嵩.m4a","我无所谓":"064. 我无所谓 - 许嵩.m4a","断桥残雪":"002. 断桥残雪 - 许嵩.m4a","早发白帝城":"086. 早发白帝城 - 许嵩.m4a","早睡身体好":"071. 早睡身体好 - 许嵩.m4a","星座书上":"024. 星座书上 - 许嵩.m4a","曼陀山庄":"107. 曼陀山庄 - 许嵩.m4a","有何不可":"003. 有何不可 - 许嵩.m4a","梧桐灯":"018. 梧桐灯 - 许嵩.m4a","没想到":"113. 没想到 - 许嵩.m4a","清明雨上":"013. 清明雨上 - 许嵩.m4a","灰色头像":"001. 灰色头像 - 许嵩.m4a","玫瑰花的葬礼":"006. 玫瑰花的葬礼 - 许嵩.m4a","白马非马":"043. 白马非马 - 许嵩.m4a","素颜":"007. 素颜 - 许嵩、何曼婷.m4a","艺术家们":"079. 艺术家们 - 许嵩.m4a","认错":"019. 认错 - 许嵩.m4a","超市":"051. 超市 - 许嵩.m4a","野人":"080. 野人 - 许嵩.m4a","闺蜜":"092. 闺蜜 - 许嵩.m4a","雅俗共赏":"004. 雅俗共赏 - 许嵩.m4a"};
+function renderAlbums(){const nav=document.getElementById("album-nav");albums.forEach((a,i)=>{const div=document.createElement("div");div.className="album-item";div.innerHTML=`<span class="album-emoji">${a.emoji}</span><span class="album-name">${a.name}</span><span class="album-year">${a.year}</span>`;div.onclick=()=>filterByAlbum(a.id);nav.appendChild(div)})}
+function filterByAlbum(id){document.querySelectorAll(".album-item").forEach(el=>el.classList.remove("active"));if(id){document.querySelector(`.album-item:nth-child(${albums.findIndex(a=>a.id===id)+1})`).classList.add("active");renderSongs(id)}else{renderSongs()}}
+function filterByTag(tag){document.querySelectorAll(".filter-btn").forEach(btn=>{btn.classList.toggle("active",btn.dataset.filter===tag)});const activeAlbum=document.querySelector(".album-item.active");const albumId=activeAlbum?albums.find(a=>a.name===activeAlbum.querySelector(".album-name").textContent)?.id:null;renderSongs("all",tag)}
+function renderSongs(albumId="all",tag="all"){const grid=document.getElementById("song-grid");grid.innerHTML="";let songs=[];albums.forEach(a=>{if(albumId==="all"||a.id===albumId)songs=songs.concat(a.songs.map(s=>({...s,album:a.name,albumId:a.id})))});if(tag!=="all")songs=songs.filter(s=>s.tags.includes(tag));document.getElementById("count").textContent=songs.length;songs.forEach(s=>{const card=document.createElement("div");card.className="song-card";card.innerHTML=`<div class="card-album"><span>${s.album}</span></div><div class="card-title">${s.title}</div><div class="card-tags">${s.tags.map(t=>`<span class="tag">${tagNames[t]||t}</span>`).join("")}</div>`;card.onclick=()=>openLyrics(s);grid.appendChild(card)})}
+function openLyrics(song){document.getElementById("modal-title").textContent=song.title;document.getElementById("modal-meta").textContent=song.album;document.getElementById("modal-tags").innerHTML=song.tags.map(t=>`<span class="modal-tag">${tagNames[t]||t}</span>`).join("");document.getElementById("modal-lyrics-text").textContent=song.lyrics;const af=audioMap[song.title];const pl=document.getElementById("modal-player");const au=document.getElementById("modal-audio");if(af){au.src="./许嵩/"+af;pl.style.display="block"}else{au.src="";pl.style.display="none"}document.getElementById("lyrics-modal").style.display="flex"}
+function closeLyrics(){const au=document.getElementById("modal-audio");au.pause();au.src="";document.getElementById("lyrics-modal").style.display="none"}
+document.querySelectorAll(".filter-btn").forEach(btn=>{btn.onclick=()=>filterByTag(btn.dataset.filter)});
+window.onscroll=()=>{document.getElementById("back-top").style.display=window.scrollY>300?"block":"none"};
+renderAlbums();renderSongs();
+</script>
+</body>
+</html>
