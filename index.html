@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>子龙的作品集</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: "Microsoft YaHei", sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; }
+.header { text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #16213e, #0f3460); }
+.header h1 { font-size: 2.5em; color: #e94560; }
+.header p { margin-top: 10px; color: #aaa; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; padding: 30px; max-width: 1200px; margin: 0 auto; }
+.card { background: #16213e; border-radius: 12px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; }
+.card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(233,69,96,0.3); }
+.card h3 { padding: 15px; font-size: 1.1em; }
+.card a { display: block; text-decoration: none; color: inherit; }
+.section-title { text-align: center; padding: 30px; color: #e94560; font-size: 1.5em; }
+.tag { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.8em; margin-left: 15px; vertical-align: middle; }
+.music { background: #e94560; color: white; }
+.game { background: #0f3460; color: white; }
+</style>
+</head>
+<body>
+<div class="header">
+    <h1>子龙的作品集</h1>
+    <p>音乐世界 & 游戏复刻</p>
+</div>
+<div class="section-title">音乐世界</div>
+<div class="grid">
+    <div class="card"><a href="许嵩音乐世界.html"><h3>许嵩音乐世界 <span class="tag music">Music</span></h3></a></div>
+    <div class="card"><a href="周杰伦音乐世界.html"><h3>周杰伦音乐世界 <span class="tag music">Music</span></h3></a></div>
+    <div class="card"><a href="金曲奖音乐世界.html"><h3>金曲奖音乐世界 <span class="tag music">Music</span></h3></a></div>
+    <div class="card"><a href="孙燕姿音乐世界.html"><h3>孙燕姿音乐世界 <span class="tag music">Music</span></h3></a></div>
+</div>
+<div class="section-title">游戏复刻</div>
+<div class="grid">
+    <div class="card"><a href="Sans大战.html"><h3>Sans大战 <span class="tag game">Game</span></h3></a></div>
+    <div class="card"><a href="Undyne大战.html"><h3>Undyne大战 <span class="tag game">Game</span></h3></a></div>
+    <div class="card"><a href="CS枪战游戏.html"><h3>CS枪战游戏 <span class="tag game">Game</span></h3></a></div>
+</div>
+</body>
+</html>
