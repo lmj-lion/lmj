@@ -1378,8 +1378,7 @@ function showDialog(idx){
 // ============================================================
 // 主更新
 // ============================================================
-function update(){
-  frame++;
+function update(dt){
   updateBox();
   updateParticles();
   
@@ -1387,19 +1386,19 @@ function update(){
   if(screenShake.intensity>0){
     screenShake.x=(Math.random()-0.5)*screenShake.intensity;
     screenShake.y=(Math.random()-0.5)*screenShake.intensity;
-    screenShake.intensity*=screenShake.decay;
+    screenShake.intensity*=Math.pow(screenShake.decay, dt);
     if(screenShake.intensity<0.4)screenShake.intensity=0;
   }else{screenShake.x=screenShake.y=0;}
   
   // Sans眨眼
-  sans.blinkTimer++;
+  sans.blinkTimer+=dt;
   if(sans.blinkTimer>150+(Math.random()*100)){sans.blinkTimer=0;}
   
   if(state===ST.INTRO){
     // 直接跳过开场，进入对话
     state=ST.DIALOGUE;showDialog(0);
   }else if(state===ST.DIALOGUE){
-    dialog.timer++;
+    dialog.timer+=dt;
     if(dialog.timer>2&&dialog.idx<dialog.full.length){
       dialog.idx++;
       dialog.text=dialog.full.slice(0,dialog.idx).replace(/\\n/g,'\n');
@@ -1413,8 +1412,8 @@ function update(){
   }else if(state===ST.BRED||state===ST.BBLUE||state===ST.BGREEN){
     if(battleStarted){survivalTime=(Date.now()-battleStartTime)/1000;}
     updateSoul();updateAttacks();checkHits();updateKarma();
-    waveTime++;
-    if(waveTime%140===0)spawnWave(turn++);
+    waveTime+=dt;
+    if(Math.floor(waveTime)%140===0)spawnWave(turn++);
     if(waveTime>850){
       waveTime=0;attacks=[];platforms=[];box.split=false;
       if(sans.dialogIdx<DIALOGS.length){
@@ -1427,10 +1426,10 @@ function update(){
     attackBar.pos+=attackBar.dir*attackBar.speed;
     if(attackBar.pos>270||attackBar.pos<0)attackBar.dir*=-1;
   }else if(state===ST.DEAD){
-    deadTimer++;
+    deadTimer+=dt;
     if(deadTimer>180&&(keys['z']||keys['enter']||keys[' ']))location.reload();
   }else if(state===ST.ENDING){
-    endingTimer++;
+    endingTimer+=dt;
     // Sans逐渐淡出
     if(endingTimer>60&&endingTimer<180){
       sans.alpha=Math.max(0,1-(endingTimer-60)/120);
@@ -1702,8 +1701,13 @@ onKeyPress=function(k){
 // ============================================================
 // 游戏循环
 // ============================================================
-function gameLoop(){
-  update();
+let lastLoopTime = 0;
+function gameLoop(timestamp){
+  if(!lastLoopTime) lastLoopTime = timestamp;
+  const delta = Math.min((timestamp - lastLoopTime) / 16.667, 3);
+  lastLoopTime = timestamp;
+  frame += delta;
+  update(delta);
   draw();
   requestAnimationFrame(gameLoop);
 }
